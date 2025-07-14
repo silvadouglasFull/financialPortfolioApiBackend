@@ -13,7 +13,7 @@ services:
     volumes:
       - ./:/var/www
     networks:
-      - financialPortfolioApiBackend
+      - financialPortfolioApiBackend-network
 
   nginx:
     image: nginx:alpine
@@ -25,8 +25,8 @@ services:
       - ./:/var/www
       - ./docker-compose/nginx:/etc/nginx/conf.d/
     networks:
-      - financialPortfolioApiBackend
+      - financialPortfolioApiBackend-network
 
 networks:
-  financialPortfolioApiBackend:
+  financialPortfolioApiBackend-network:
     driver: bridge
