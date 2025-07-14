@@ -41,13 +41,17 @@ class RouteServiceProvider extends ServiceProvider
             // NOVO: Adiciona rotas de autenticação em um grupo separado da API
             Route::middleware('api') // Garante que use o middleware 'api'
                 ->prefix('api')     // Garante o prefixo 'api'
-                ->group(base_path('routes/auth.php')); // Ou 'routes/register.php'
+                ->group(base_path('routes/register.php'));
 
+            // NOVO: Adiciona rotas de autenticação em um grupo separado da API
+            Route::middleware('api') // Garante que use o middleware 'api'
+                ->prefix('api')     // Garante o prefixo 'api'
+                ->group(base_path('routes/auth.php'));
             // Você pode até mesmo criar um grupo só para rotas de autenticação,
             // adicionando outro prefixo como /api/auth se quiser
             // Route::middleware('api')
             //     ->prefix('api/auth')
-            //     ->group(base_path('routes/auth.php')); // Neste caso, o prefixo 'auth' já estaria no RouteServiceProvider
+            //     ->group(base_path('routes/register.php')); // Neste caso, o prefixo 'auth' já estaria no RouteServiceProvider
         });
     }
 }

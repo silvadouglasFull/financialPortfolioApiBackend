@@ -9,7 +9,11 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Facades\Hash; // Importar para Hash::make()
 use Illuminate\Database\Eloquent\Casts\Attribute; // Importar para Accessors/Mutators no Laravel 9+
-
+/**
+ * App\Models\User
+ *
+ * @method \Laravel\Sanctum\NewAccessToken createToken(string $name, array $abilities = ['*'])
+ */
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasUuids; // Incluir HasUuids aqui
@@ -26,6 +30,7 @@ class User extends Authenticatable
         'document',
         'balance',
         'user_type',
+        'google_id'
     ];
 
     /**

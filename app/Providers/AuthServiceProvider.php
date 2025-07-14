@@ -8,6 +8,8 @@ namespace App\Providers;
 
 use App\Repositories\EloquentUserRepository;
 use App\Repositories\UserRepositoryInterface;
+use App\Services\Auth\AuthService;
+use App\Services\Auth\AuthServiceInterface;
 use App\Services\Auth\RegisterValidationServiceInterface;
 use App\Services\Auth\RegisterValidationService;
 use App\Services\User\UserService;
@@ -38,6 +40,11 @@ class AuthServiceProvider extends ServiceProvider
         $this->app->bind(
             UserServiceInterface::class,
             UserService::class
+        );
+        // Binding para o serviço de autenticação
+        $this->app->bind(
+            AuthServiceInterface::class,
+            AuthService::class
         );
     }
 
