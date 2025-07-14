@@ -34,4 +34,3 @@ RUN useradd -G www-data,root -u $uid -d /home/$user $user && \
     chown -R $user:$user /home/$user
 WORKDIR /var/www
 USER $user
-RUN composer install --no-dev --optimize-autoloader

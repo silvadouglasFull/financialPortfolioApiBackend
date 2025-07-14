@@ -1,5 +1,5 @@
 services:
-  app:
+  laravel:
     build:
       args:
         user: financialPortfolioApiBackend
@@ -7,7 +7,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     image: php:8.4-fpm
-    container_name: financialPortfolioApiBackend-app
+    container_name: financialPortfolioApiBackend-laravel
     restart: unless-stopped
     working_dir: /var/www/
     volumes:
