@@ -68,4 +68,17 @@ class EloquentUserRepository implements UserRepositoryInterface
         $user->update($data);
         return $user;
     }
+    /**
+     * Atualiza o saldo de um usuário.
+     *
+     * @param User $user A instância do usuário.
+     * @param float $amount O valor a ser adicionado/subtraído do saldo.
+     * @return bool
+     */
+    public function updateBalance(User $user, float $amount): bool
+    {
+        // Garante que o balance seja atualizado corretamente, tratando floats.
+        $user->balance += $amount;
+        return $user->save();
+    }
 }

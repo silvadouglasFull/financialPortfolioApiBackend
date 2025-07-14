@@ -50,4 +50,12 @@ interface UserRepositoryInterface
      * @return User
      */
     public function update(User $user, array $data): User;
+    /**
+     * Atualiza o saldo de um usuário.
+     *
+     * @param User $user A instância do usuário.
+     * @param float $amount O valor a ser adicionado/subtraído do saldo.
+     * @return bool
+     */
+    public function updateBalance(User $user, float $amount): bool;
 }
