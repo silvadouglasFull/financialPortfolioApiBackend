@@ -8,15 +8,15 @@ services:
     container_name: financial_portfolio_laravel
     environment:
       # Variáveis de ambiente para o Laravel, carregadas do arquivo .env
-      APP_ENV=local
-      APP_DEBUG=true
-      APP_URL=http://localhost
-      DB_CONNECTION=mysql
-      DB_HOST=${DB_HOST}
-      DB_PORT=${DB_PORT}
-      DB_DATABASE=${DB_DATABASE}
-      DB_USERNAME=${DB_USERNAME}
-      DB_PASSWORD=${DB_PASSWORD}
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://localhost
+      - DB_CONNECTION=mysql
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
     volumes:
       # Mapeia o código da aplicação do host para o container
       - .:/var/www
@@ -25,11 +25,9 @@ services:
       - ./docker-compose/nginx/sites-available:/etc/nginx/sites-available
     ports:
       # Mapeamento da porta do Nginx no container (80) para a porta 80 do host
-      - ["80:80"]
+      - "80:80"
     networks:
       - app-network
-    depends_on:
-      - mysql # Adicionar o MySQL aqui para garantir que o Laravel espere ele iniciar
 
 networks:
   app-network:
