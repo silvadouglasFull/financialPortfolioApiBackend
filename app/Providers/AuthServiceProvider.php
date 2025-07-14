@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+// Removido App\Http\Controllers\Auth\RegisterController daqui,
+// pois o ServiceProvider não está vinculando o Controller em si.
+// Use App\Http\Controllers\Auth\RegisterController; // <-- Remova esta linha se não estiver usando-a para outra coisa.
+
 use App\Repositories\EloquentUserRepository;
 use App\Repositories\UserRepositoryInterface;
 use App\Services\Auth\RegisterValidationServiceInterface;
@@ -22,13 +26,15 @@ class AuthServiceProvider extends ServiceProvider
             RegisterValidationServiceInterface::class,
             RegisterValidationService::class
         );
+
         // Binding para o repositório de usuário
         $this->app->bind(
             UserRepositoryInterface::class,
             EloquentUserRepository::class
         );
 
-        // Binding para o serviço de usuário
+        // Binding CORRETO para o serviço de usuário
+        // UMA INTERFACE PARA UMA IMPLEMENTAÇÃO
         $this->app->bind(
             UserServiceInterface::class,
             UserService::class
