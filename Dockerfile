@@ -4,13 +4,13 @@ FROM php:8.4-fpm
 ARG user=financialPortfolioApiBackend
 ARG uid=1000
 
-# Instala dependências básicas do sistema e extensões do PHP necessárias para Laravel + SQLite + e-mail
+# Instala dependências básicas do sistema e extensões do PHP necessárias para Laravel + MySQL + e-mail
 RUN apt-get update && apt-get install -y \
     git \
     curl \
     unzip \
     zip \
-    nano \ 
+    nano \
     cron \
     libzip-dev \
     libonig-dev \
@@ -18,10 +18,9 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
-    sqlite3 \
-    libsqlite3-dev \
+    libmysqlclient-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_sqlite mbstring exif pcntl bcmath gd zip \
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
