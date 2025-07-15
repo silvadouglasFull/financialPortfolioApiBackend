@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Web\RegisterController;
+use App\Http\Controllers\Web\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');

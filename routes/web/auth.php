@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Web\GoogleAuthController;
-use App\Http\Controllers\Web\LoginController;
+use App\Http\Controllers\Web\Auth\LoginController;
+use App\Http\Controllers\Web\Auth\GoogleAuthController;
 
 use Illuminate\Support\Facades\Route;
 
