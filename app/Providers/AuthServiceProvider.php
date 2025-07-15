@@ -61,5 +61,35 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('commun-access', function (User $user) {
             return $user->user_type === UserTypeEnum::COMMON;
         });
+
+        // Opcional: Você também pode definir Gates mais granulares se precisar de controle individual
+        // para cada ação de CRUD, mesmo que o menu seja visível apenas para admins.
+        // Isso é o que você já fez no UserController, mas aqui são as definições dos Gates.
+
+        // Gate para visualizar a lista de usuários (apenas admins)
+        Gate::define('viewAny', function (User $user) {
+            return $user->user_type === UserTypeEnum::ADMIN;
+        });
+
+        // Gate para criar usuários (apenas admins)
+        Gate::define('create', function (User $user) {
+            return $user->user_type === UserTypeEnum::ADMIN;
+        });
+
+        // Gate para visualizar um usuário específico (admins ou o próprio usuário)
+        // Note que o $targetUser é a instância do usuário que está sendo visualizada.
+        Gate::define('view', function (User $user, User $targetUser) {
+            return $user->user_type === UserTypeEnum::ADMIN || $user->id === $targetUser->id;
+        });
+
+        // Gate para atualizar um usuário (admins ou o próprio usuário)
+        Gate::define('update', function (User $user, User $targetUser) {
+            return $user->user_type === UserTypeEnum::ADMIN || $user->id === $targetUser->id;
+        });
+
+        // Gate para deletar um usuário (apenas admins)
+        Gate::define('delete', function (User $user, User $targetUser) {
+            return $user->user_type === UserTypeEnum::ADMIN;
+        });
     }
 }
