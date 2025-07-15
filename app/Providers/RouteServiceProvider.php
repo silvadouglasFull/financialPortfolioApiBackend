@@ -50,6 +50,9 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api')     // Garante o prefixo 'api'
                 ->group(base_path('routes/transactions.deposit.php'));
 
+            Route::middleware('api') // Garante que use o middleware 'api'
+                ->prefix('api')     // Garante o prefixo 'api'
+                ->group(base_path('routes/transactions.reverse.php'));
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });

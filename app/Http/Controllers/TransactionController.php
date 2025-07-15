@@ -2,32 +2,29 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TransferRequest;
 use App\Http\Requests\DepositRequest;
-use App\Http\Requests\TransferRequest; // Importar o Form Request
-use App\Services\Transfer\TransferServiceInterface; // Importar a interface do serviço de transferência
-use App\Repositories\UserRepositoryInterface; // Importar o repositório de usuário para buscar o recebedor
+use App\Services\Transfer\TransferServiceInterface;
 use App\Services\Deposit\DepositServiceInterface;
+use App\Repositories\UserRepositoryInterface;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Response; // Para constantes de status HTTP
-use Illuminate\Support\Facades\Log; // Para logs de erro
-use Exception; // Para capturar exceções gerais
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
+use Exception;
+use App\Enums\TransactionStatus; // Importar TransactionStatus
 
-/**
- * Class TransactionController
- *
- * Controlador responsável por lidar com as operações de transação, especificamente transferências.
- */
 class TransactionController extends Controller
 {
     protected TransferServiceInterface $transferService;
-    protected UserRepositoryInterface $userRepository; // Para buscar o payee
-    protected DepositServiceInterface $depositService; // o DepositServiceInterface
+    protected DepositServiceInterface $depositService;
+    protected UserRepositoryInterface $userRepository;
 
     /**
      * Construtor do TransactionController.
      *
-     * @param TransferServiceInterface $transferService O serviço de transferência injetado.
-     * @param UserRepositoryInterface $userRepository O repositório de usuários injetado.
+     * @param TransferServiceInterface $transferService
+     * @param DepositServiceInterface $depositService
+     * @param UserRepositoryInterface $userRepository
      */
     public function __construct(
         TransferServiceInterface $transferService,
@@ -42,21 +39,17 @@ class TransactionController extends Controller
     /**
      * Realiza uma transferência de dinheiro.
      *
-     * @param TransferRequest $request A requisição de transferência validada.
+     * @param TransferRequest $request
      * @return JsonResponse
      */
     public function transfer(TransferRequest $request): JsonResponse
     {
-        // O usuário pagador é o usuário autenticado, já validado pelo TransferRequest->authorize()
         $payer = $request->user();
-
-        // O recebedor (payee) é buscado pelo ID fornecido no request,
-        // que já foi validado pelo TransferRequest (uuid, exists, not_in).
         $payee = $this->userRepository->findById($request->payee_id);
 
-        // Se por algum motivo o payee não for encontrado (apesar da validação),
-        // embora improvável com 'exists' rule, é bom ter uma verificação.
         if (!$payee) {
+            // Este caso deve ser raro se o TransferRequest já valida payee_id,
+            // mas é um fallback para garantir que o recebedor existe.
             Log::error('Recebedor não encontrado após validação de TransferRequest.', ['payee_id' => $request->payee_id]);
             return response()->json([
                 'message' => 'Erro interno. Recebedor não encontrado.',
@@ -64,24 +57,42 @@ class TransactionController extends Controller
         }
 
         try {
-            // Chama o serviço para executar a transferência
             $transaction = $this->transferService->performTransfer(
                 $payer,
                 $payee,
                 $request->amount
             );
 
-            // Retorna sucesso com os detalhes da transação
-            return response()->json([
-                'message' => 'Transferência realizada com sucesso!',
-                'transaction' => $transaction->load(['payer', 'payee']), // Carrega os relacionamentos para retorno
-                // Você pode querer retornar apenas alguns campos da transação por segurança
-                // 'transaction' => $transaction->only(['id', 'payer_id', 'payee_id', 'amount', 'status', 'created_at']),
-            ], Response::HTTP_OK); // 200 OK
-
+            // Verificar o status da transação retornada pelo serviço
+            if ($transaction->status === TransactionStatus::COMPLETED) {
+                return response()->json([
+                    'message' => 'Transferência realizada com sucesso!',
+                    'transaction' => $transaction->load(['payer', 'payee']),
+                ], Response::HTTP_OK);
+            } elseif ($transaction->status === TransactionStatus::DENIED) {
+                // Se a transação foi negada pelo serviço e registrada como DENIED
+                return response()->json([
+                    'message' => 'Transferência negada.',
+                    'reason' => $transaction->reason, // O motivo da negação
+                    'transaction' => $transaction->load(['payer', 'payee']), // Retornar a transação negada
+                ], Response::HTTP_OK); // Ainda retorna 200 OK, pois a operação de registro foi um sucesso
+            } else {
+                // Caso um status inesperado seja retornado
+                Log::error('Status de transação inesperado retornado pelo TransferService.', [
+                    'transaction_id' => $transaction->id,
+                    'status' => $transaction->status->value,
+                    'payer_id' => $payer->id,
+                    'payee_id' => $payee->id,
+                    'amount' => $request->amount,
+                ]);
+                return response()->json([
+                    'message' => 'Erro interno. Status de transação inesperado.',
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
         } catch (Exception $e) {
-            // Captura qualquer exceção lançada pelo TransferService
-            Log::error('Falha na transferência de dinheiro: ' . $e->getMessage(), [
+            // Este catch agora deve ser apenas para erros *inesperados* do sistema,
+            // não para regras de negócio (saldo insuficiente, lojista) que já são tratadas no serviço.
+            Log::error('Falha inesperada na transferência de dinheiro: ' . $e->getMessage(), [
                 'payer_id' => $payer->id,
                 'payee_id' => $payee->id,
                 'amount' => $request->amount,
@@ -89,21 +100,13 @@ class TransactionController extends Controller
                 'exception' => $e
             ]);
 
-            $statusCode = Response::HTTP_BAD_REQUEST; // 400 Bad Request para erros de negócio (ex: saldo insuficiente)
-            if ($e->getMessage() === 'Saldo insuficiente para realizar a transferência.') {
-                $errorMessage = $e->getMessage();
-            } else {
-                // Para outros erros não esperados, retornar 500 e uma mensagem genérica
-                $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
-                $errorMessage = 'Ocorreu um erro inesperado ao processar a transferência. Por favor, tente novamente mais tarde.';
-            }
-
             return response()->json([
                 'message' => 'Erro ao realizar a transferência.',
-                'error' => $errorMessage,
-            ], $statusCode);
+                'error' => 'Ocorreu um erro inesperado ao processar a transferência. Por favor, tente novamente mais tarde.',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
     /**
      * Realiza um depósito de dinheiro para o usuário autenticado.
      *
@@ -112,14 +115,15 @@ class TransactionController extends Controller
      */
     public function deposit(DepositRequest $request): JsonResponse
     {
-        $user = $request->user(); // Usuário autenticado é quem está depositando
+        $user = $request->user();
         $amount = $request->amount;
+
         try {
             $transaction = $this->depositService->performDeposit($user, $amount);
 
             return response()->json([
                 'message' => 'Depósito realizado com sucesso!',
-                'transaction' => $transaction, // Retorna os detalhes da transação de depósito
+                'transaction' => $transaction,
             ], Response::HTTP_OK);
         } catch (Exception $e) {
             Log::error('Falha no depósito de dinheiro: ' . $e->getMessage(), [

@@ -8,6 +8,7 @@ require __DIR__ . '/register.php';
 require __DIR__ . '/auth.php';
 require __DIR__ . '/transactions.php';
 require __DIR__ . '/transactions.deposit.php';
+require __DIR__ . '/transactions.reverse.php';
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
