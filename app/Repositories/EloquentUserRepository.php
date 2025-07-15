@@ -2,7 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Enums\UserTypeEnum;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Classe EloquentUserRepository
@@ -80,5 +82,18 @@ class EloquentUserRepository implements UserRepositoryInterface
         // Garante que o balance seja atualizado corretamente, tratando floats.
         $user->balance += $amount;
         return $user->save();
+    }
+    /**
+     * Obtém todos os usuários, exceto um ID específico.
+     *
+     * @param int|null $excludedId O ID do usuário a ser excluído da lista.
+     * @return Collection<User>
+     */
+    public function getAllExcept(?int $excludedId = null): Collection
+    {
+        return User::where([
+            ["id", "!=", $excludedId],
+            ["user_type", "!=", UserTypeEnum::ADMIN]
+        ])->get();
     }
 }

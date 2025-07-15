@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
             'id' => (string) Str::uuid(), // Garantir UUID para o ID
             'name' => 'Admin User',
             'email' => 'admin@example.com',
-            'password' => Hash::make('Admin@123'), // Senha forte para o admin
+            'password' => "Admin@123", // Senha forte para o admin
             'document' => '12345678900', // CPF fixo para o admin, ou use generateUniqueCpf()
             'balance' => 0.00,
             'user_type' => UserTypeEnum::ADMIN,

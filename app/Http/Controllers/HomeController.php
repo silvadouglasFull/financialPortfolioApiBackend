@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Transactions\RetrieveTransactionsInterface;
 
 class HomeController extends Controller
 {
+    protected RetrieveTransactionsInterface $retrieveTransactions;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(RetrieveTransactionsInterface $retrieveTransactions)
     {
         $this->middleware('auth');
+        $this->retrieveTransactions = $retrieveTransactions;
     }
 
     /**
@@ -23,6 +26,9 @@ class HomeController extends Controller
 
     public function index()
     {
-        return view('home');
+        $transactions = $this->retrieveTransactions->retrieve(10);
+        return view('home', [
+            'transactions' => $transactions,
+        ]);
     }
 }

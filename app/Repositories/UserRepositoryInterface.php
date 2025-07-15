@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * Interface UserRepositoryInterface
@@ -58,4 +59,13 @@ interface UserRepositoryInterface
      * @return bool
      */
     public function updateBalance(User $user, float $amount): bool;
+
+
+    /**
+     * Obtém todos os usuários, exceto um ID específico.
+     *
+     * @param int|null $excludedId O ID do usuário a ser excluído da lista.
+     * @return Collection<User>
+     */
+    public function getAllExcept(?int $excludedId = null): Collection;
 }

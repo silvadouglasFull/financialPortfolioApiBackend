@@ -8,6 +8,8 @@ use App\Repositories\Reversal\TransactionReversalRepositoryInterface;
 use App\Repositories\TransactionRepositoryInterface;
 use App\Services\Reversal\ReversalService;
 use App\Services\Reversal\ReversalServiceInterface;
+use App\Services\Transactions\RetrieveTransactions;
+use App\Services\Transactions\RetrieveTransactionsInterface;
 use App\Services\Transfer\TransferService;
 use App\Services\Transfer\TransferServiceInterface;
 use Illuminate\Support\ServiceProvider;
@@ -35,6 +37,10 @@ class TransactionsServiceProvider extends ServiceProvider
         $this->app->bind(
             ReversalServiceInterface::class,
             ReversalService::class
+        );
+        $this->app->bind(
+            RetrieveTransactionsInterface::class,
+            RetrieveTransactions::class
         );
     }
 

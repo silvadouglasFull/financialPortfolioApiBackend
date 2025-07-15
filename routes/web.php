@@ -10,3 +10,4 @@ require __DIR__ . '/web/register.php';
 require __DIR__ . '/web/transaction.php';
 Auth::routes();
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index'])->name('home');

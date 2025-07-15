@@ -48,7 +48,7 @@
             <p style="color: red;">Você não tem permissão para acessar esta página.</p>
         @endif
     @else
-        <p>Você precisa estar logado para acessar esta página. <a href="{{ route('login') }}">Fazer Login</a></p>
+        <p>Você precisa estar logado para acessar esta página. <a href="{{ route('login') }}">Do Login</a></p>
     @endauth
 </body>
 
