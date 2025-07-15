@@ -1,9 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\ReversalController; // Importe o ReversalController
 
 /*
