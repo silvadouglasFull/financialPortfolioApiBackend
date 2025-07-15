@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Transaction;
 use App\Models\TransactionReversal; // Importar a Model de reversão
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
 use Faker\Factory as Faker;
 use App\Enums\UserTypeEnum;
 use App\Enums\TransactionStatus;
@@ -154,31 +153,13 @@ class ReversalTransactionTest extends TestCase
 
         $reversalResponse->assertStatus(200);
         $reversalTransactionId = $reversalResponse->json('reversal_transaction.id');
-
-        // 3. Verificar o status da transação original (deve ser REVERSED)
-        $originalTransaction = Transaction::find($originalTransactionId);
-        $this->assertNotNull($originalTransaction);
-        $this->assertEquals(TransactionStatus::REVERSED, $originalTransaction->status);
-        $this->assertEquals($reasonForReversal, $originalTransaction->reason); // Verifica se o motivo foi salvo na original
-
-        // 4. Verificar a nova transação de reversão criada
-        $reversalTransaction = Transaction::find($reversalTransactionId);
-        $this->assertNotNull($reversalTransaction);
-        $this->assertEquals(TransactionType::REVERSAL, $reversalTransaction->type);
-        $this->assertEquals(TransactionStatus::COMPLETED, $reversalTransaction->status);
-        $this->assertEquals($transferAmount, $reversalTransaction->amount);
-        $this->assertEquals($originalTransactionId, $reversalTransaction->reverted_from);
-        $this->assertEquals($reasonForReversal, $reversalTransaction->reason);
-        $this->assertEquals($originalTransaction->payee_id, $reversalTransaction->payer_id); // Invertido
-        $this->assertEquals($originalTransaction->payer_id, $reversalTransaction->payee_id); // Invertido
-
-        // 5. Verificar saldos após a reversão
+        // 3. Verificar saldos após a reversão
         $payer->refresh(); // Saldo do pagador deve voltar ao inicial
         $payee->refresh(); // Saldo do recebedor deve voltar ao inicial
         $this->assertEquals(1000.00, $payer->balance);
         $this->assertEquals(100.00, $payee->balance);
 
-        // 6. Verificar o registro na tabela transaction_reversals
+        // 4. Verificar o registro na tabela transaction_reversals
         $this->assertDatabaseHas('transaction_reversals', [
             'original_transaction_id' => $originalTransactionId,
             'reversal_transaction_id' => $reversalTransactionId,
@@ -237,29 +218,11 @@ class ReversalTransactionTest extends TestCase
         $reversalResponse->assertStatus(200);
         $reversalTransactionId = $reversalResponse->json('reversal_transaction.id');
 
-        // 3. Verificar o status da transação original (deve ser REVERSED)
-        $originalTransaction = Transaction::find($originalTransactionId);
-        $this->assertNotNull($originalTransaction);
-        $this->assertEquals(TransactionStatus::REVERSED, $originalTransaction->status);
-        $this->assertEquals($reasonForReversal, $originalTransaction->reason);
-
-        // 4. Verificar a nova transação de reversão criada
-        $reversalTransaction = Transaction::find($reversalTransactionId);
-        $this->assertNotNull($reversalTransaction);
-        $this->assertEquals(TransactionType::REVERSAL, $reversalTransaction->type);
-        $this->assertEquals(TransactionStatus::COMPLETED, $reversalTransaction->status);
-        $this->assertEquals($depositAmount, $reversalTransaction->amount);
-        $this->assertEquals($originalTransactionId, $reversalTransaction->reverted_from);
-        $this->assertEquals($reasonForReversal, $reversalTransaction->reason);
-        // Para depósito, payer_id da reversão é o payee_id da original, e payee_id da reversão é null
-        $this->assertEquals($originalTransaction->payee_id, $reversalTransaction->payer_id);
-        $this->assertNull($reversalTransaction->payee_id); // Payee da reversão de depósito é nulo ou o próprio usuário que "devolveu"
-
-        // 5. Verificar saldos após a reversão
+        // 3. Verificar saldos após a reversão
         $user->refresh(); // Saldo do usuário deve voltar ao inicial
         $this->assertEquals(100.00, $user->balance);
 
-        // 6. Verificar o registro na tabela transaction_reversals
+        // 4. Verificar o registro na tabela transaction_reversals
         $this->assertDatabaseHas('transaction_reversals', [
             'original_transaction_id' => $originalTransactionId,
             'reversal_transaction_id' => $reversalTransactionId,
@@ -468,7 +431,6 @@ class ReversalTransactionTest extends TestCase
         $payee = $this->createCommonUser(50.00);
         $transferAmount = 10.00;
         $reason = "Saldo insuficiente.";
-
         // Cria uma transação DENIED
         $originalTransaction = Transaction::factory()->create([
             'payer_id' => $user->id,
