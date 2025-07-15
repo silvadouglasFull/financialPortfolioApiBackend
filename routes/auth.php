@@ -1,12 +1,9 @@
 <?php
 
-use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\Api\Auth\GoogleAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\LoginController; // Importar o LoginController
-// Certifique-se de importar o GoogleAuthController quando criá-lo
-// use App\Http\Controllers\Auth\GoogleAuthController;
+use App\Http\Controllers\Api\Auth\LoginController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,7 +27,6 @@ Route::post('/login', [LoginController::class, 'login'])->name('auth.login');
 
 // ROTAS DE REGISTRO
 Route::group(['prefix' => 'auth'], function () {
-    Route::post('/register', [RegisterController::class, 'register'])->name('auth.register');
 
     // ROTAS DE AUTENTICAÇÃO SOCIAL (GOOGLE)
     // Elas estarão dentro do prefixo 'auth' conforme o requisito

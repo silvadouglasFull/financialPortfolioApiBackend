@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ReversalRequest; // Importar o Form Request
 use App\Services\Reversal\ReversalServiceInterface; // Importar a Interface do Serviço
 use Illuminate\Http\JsonResponse;

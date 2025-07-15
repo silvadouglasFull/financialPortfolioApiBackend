@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite; // Importar Socialite
@@ -10,7 +10,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB; // Para transações de banco de dados
 use Illuminate\Support\Facades\Log; // Para logs de erro
-use App\Models\User; // Para o modelo de usuário
 use App\Enums\UserTypeEnum; // Para o UserTypeEnum
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;

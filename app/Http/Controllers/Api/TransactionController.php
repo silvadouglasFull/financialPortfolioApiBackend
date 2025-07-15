@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\TransferRequest;
 use App\Http\Requests\DepositRequest;
@@ -12,6 +12,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Exception;
 use App\Enums\TransactionStatus; // Importar TransactionStatus
+use App\Http\Controllers\Controller;
 
 class TransactionController extends Controller
 {

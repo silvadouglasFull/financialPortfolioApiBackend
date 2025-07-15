@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Api\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
 
 // Este arquivo conterá rotas específicas de autenticação.
