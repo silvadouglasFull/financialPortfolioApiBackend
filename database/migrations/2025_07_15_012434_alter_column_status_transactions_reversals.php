@@ -13,7 +13,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('transaction_reversals', function (Blueprint $table) {
-            DB::statement("ALTER TABLE transactions CHANGE status status ENUM('PENDING', 'COMPLETED', 'FAILED', 'REVERSED') NOT NULL DEFAULT 'PENDING'");
+            DB::statement("ALTER TABLE transaction_reversals CHANGE status status ENUM('PENDING', 'COMPLETED', 'FAILED', 'REVERSED','DENIED') NOT NULL DEFAULT 'PENDING'");
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('transaction_reversals', function (Blueprint $table) {
-            DB::statement("ALTER TABLE transactions CHANGE status status ENUM('PENDING', 'COMPLETED', 'FAILED') NOT NULL DEFAULT 'PENDING'");
+            DB::statement("ALTER TABLE transaction_reversals CHANGE status status ENUM('PENDING', 'COMPLETED', 'FAILED') NOT NULL DEFAULT 'PENDING'");
         });
     }
 };
