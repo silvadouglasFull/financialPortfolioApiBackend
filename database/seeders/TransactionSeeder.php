@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Transaction;
 use App\Enums\TransactionType;
 use App\Enums\TransactionStatus;
+use App\Enums\UserTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class TransactionSeeder extends Seeder
@@ -20,7 +21,7 @@ class TransactionSeeder extends Seeder
         $this->call(UserSeeder::class);
 
         // Recupera todos os usuários.
-        $users = User::all();
+        $users = User::where("user_type", "!=", UserTypeEnum::ADMIN)->get();
 
         // Pega o primeiro usuário como pagador.
         $payer = $users->first();

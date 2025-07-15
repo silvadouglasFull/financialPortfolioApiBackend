@@ -47,7 +47,7 @@ class ReversalController extends Controller
             );
 
             return response()->json([
-                'message' => 'Reversão realizada com sucesso!',
+                'message' => 'Reversal successful!',
                 'reversal_transaction' => $reversalTransaction, // A nova transação de REVERSAL
             ], Response::HTTP_OK);
         } catch (Exception $e) {

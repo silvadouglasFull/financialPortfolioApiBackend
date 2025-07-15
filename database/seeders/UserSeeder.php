@@ -5,8 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Enums\UserTypeEnum;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str; // Importar Str para UUIDs
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
