@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Web\LoginController;
+use App\Http\Controllers\Web\RegisterController;
 use Illuminate\Support\Facades\Route;
 
-
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [RegisterController::class, 'register']);
