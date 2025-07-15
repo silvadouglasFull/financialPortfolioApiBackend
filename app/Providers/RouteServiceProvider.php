@@ -36,23 +36,23 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/api.php'));
             Route::middleware('api') // Garante que use o middleware 'api'
                 ->prefix('api')     // Garante o prefixo 'api'
-                ->group(base_path('routes/register.php'));
+                ->group(base_path('routes/api/register.php'));
 
             Route::middleware('api') // Garante que use o middleware 'api'
                 ->prefix('api')     // Garante o prefixo 'api'
-                ->group(base_path('routes/auth.php'));
+                ->group(base_path('routes/api/auth.php'));
 
             Route::middleware('api') // Garante que use o middleware 'api'
                 ->prefix('api')     // Garante o prefixo 'api'
-                ->group(base_path('routes/transactions.php'));
+                ->group(base_path('routes/api/transactions.php'));
 
             Route::middleware('api') // Garante que use o middleware 'api'
                 ->prefix('api')     // Garante o prefixo 'api'
-                ->group(base_path('routes/transactions.deposit.php'));
+                ->group(base_path('routes/api/transactions.deposit.php'));
 
             Route::middleware('api') // Garante que use o middleware 'api'
                 ->prefix('api')     // Garante o prefixo 'api'
-                ->group(base_path('routes/transactions.reverse.php'));
+                ->group(base_path('routes/api/transactions.reverse.php'));
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
