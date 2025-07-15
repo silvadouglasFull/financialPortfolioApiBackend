@@ -61,7 +61,7 @@ class LoginController extends Controller
             return back()->withErrors(['login' => $e->getMessage()])->withInput();
         } catch (\Exception $e) {
             // Captura quaisquer outras exceções inesperadas
-            Log::error('Erro ao tentar fazer login via web: ' . $e->getMessage(), ['exception' => $e]);
+            Log::error('Erro ao tentar Log in via web: ' . $e->getMessage(), ['exception' => $e]);
             return back()->withErrors(['login' => 'Ocorreu um erro interno ao tentar realizar o login. Por favor, tente novamente mais tarde.'])->withInput();
         }
     }

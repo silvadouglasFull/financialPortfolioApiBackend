@@ -97,7 +97,7 @@ class LoginController extends Controller
                 'error' => $e->getMessage(),
             ], Response::HTTP_UNAUTHORIZED);
         } catch (\Exception $e) {
-            Log::error('Erro ao tentar fazer login: ' . $e->getMessage(), ['exception' => $e]);
+            Log::error('Erro ao tentar Log in: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json([
                 'message' => 'Ocorreu um erro interno ao tentar realizar o login.',
                 'error' => 'Por favor, tente novamente mais tarde.'

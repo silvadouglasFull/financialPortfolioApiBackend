@@ -1,3 +1,3 @@
-@section('title', 'Fazer login na sua Carteira Digital')
+@section('title', 'Log in to your Digital Wallet')
 
 @extends('adminlte::auth.login')

@@ -42,7 +42,7 @@ class LoginRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        // Neste caso, qualquer um pode tentar fazer login.
+        // Neste caso, qualquer um pode tentar Log in.
         // A lógica de autenticação real será no serviço/controlador.
         return true;
     }

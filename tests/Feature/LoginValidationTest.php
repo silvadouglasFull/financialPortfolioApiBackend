@@ -58,7 +58,7 @@ class LoginValidationTest extends TestCase
     }
 
     /**
-     * Testa se um usuário pode fazer login com credenciais válidas.
+     * Testa se um usuário pode Log in com credenciais válidas.
      */
     public function testUserCanLoginWithValidCredentials(): void
     {

@@ -13,7 +13,7 @@
         <button type="submit" class="btn btn-info mt-3">Create New</button>
     @else
         <p>Você não está logado.</p>
-        <p><a href="{{ route('login') }}">Fazer Login</a> ou <a href="{{ route('register') }}">Cadastrar-se</a></p>
+        <p><a href="{{ route('login') }}">Log in</a> ou <a href="{{ route('register') }}">Cadastrar-se</a></p>
     @endauth
 
     @if (session('success'))
