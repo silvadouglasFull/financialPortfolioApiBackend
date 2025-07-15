@@ -301,23 +301,34 @@ return [
 
     'menu' => [
 
-        // Sidebar items:
-        ['header' => 'account_settings'],
+        // --- Adição para o CRUD de Usuários ---
+        ['header' => 'User Management'],
         [
-            'text' => 'profile',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-user',
+            'text'    => 'Users',
+            'icon'    => 'fas fa-fw fa-users',
+            'submenu' => [
+                [
+                    'text' => 'List All Users',
+                    'url'  => 'admin/users', // ou route('admin.users.index') se você usar helpers em Blade
+                    'icon' => 'fas fa-fw fa-list',
+                ],
+                [
+                    'text' => 'Add New User',
+                    'url'  => 'admin/users/create', // ou route('admin.users.create')
+                    'icon' => 'fas fa-fw fa-user-plus',
+                ],
+            ],
+            // Adicione uma verificação de permissão para garantir que apenas admins vejam este menu
+            'can' => 'admin-access', // Ou qualquer gate/policy que você tenha para administradores
         ],
-        [
-            'text' => 'change_password',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-lock',
-        ],
+        // --- Fim da Adição ---
+
         ['header' => 'Deposit'],
         [
             'text' => 'New',
             'icon_color' => 'green',
             'url' => '/transactions/deposit',
+            'can' => 'commun-access'
         ],
         ['header' => 'Transactions'],
         [

@@ -8,6 +8,7 @@ require __DIR__ . '/web/admin.php';
 require __DIR__ . '/web/auth.php';
 require __DIR__ . '/web/register.php';
 require __DIR__ . '/web/transaction.php';
+// require __DIR__ . '/web/user.php';
 Auth::routes();
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/home', [HomeController::class, 'index'])->name('home');

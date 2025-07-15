@@ -8,10 +8,12 @@ use App\Repositories\UserRepositoryInterface;
 use App\Repositories\TransactionRepositoryInterface;
 use App\Enums\TransactionStatus; // Importar o Enum TransactionStatus
 use App\Enums\TransactionType;   // Importar o novo Enum TransactionType
+use App\Enums\UserTypeEnum;
 use App\Events\MoneyDeposited;   // Importar o Evento (será criado na próxima etapa)
 use Illuminate\Support\Facades\DB; // Para transações de banco de dados
 use Illuminate\Support\Facades\Log; // Para logging de erros
 use Exception; // Para capturar exceções genéricas
+use Illuminate\Http\Response;
 
 /**
  * Class DepositService
@@ -47,6 +49,9 @@ class DepositService implements DepositServiceInterface
      */
     public function performDeposit(User $user, float $amount): Transaction
     {
+        if ($user->user_type === UserTypeEnum::ADMIN) {
+            throw new Exception("You do not have permission to use this feature", Response::HTTP_FORBIDDEN);
+        }
         // 1. Iniciar uma transação de banco de dados para garantir atomicidade
         DB::beginTransaction();
 

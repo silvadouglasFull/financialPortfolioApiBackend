@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Enums\UserTypeEnum;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Classe EloquentUserRepository
@@ -25,6 +26,16 @@ class EloquentUserRepository implements UserRepositoryInterface
         return User::create($data);
     }
 
+    /**
+     * Lista todos os usuários com paginação.
+     *
+     * @param int $perPage
+     * @return LengthAwarePaginator
+     */
+    public function all(int $perPage = 10): LengthAwarePaginator
+    {
+        return User::paginate($perPage);
+    }
     /**
      * Busca um usuário pelo ID.
      *
@@ -95,5 +106,15 @@ class EloquentUserRepository implements UserRepositoryInterface
             ["id", "!=", $excludedId],
             ["user_type", "!=", UserTypeEnum::ADMIN]
         ])->get();
+    }
+    /**
+     * Deleta um usuário.
+     *
+     * @param User $user
+     * @return bool|null
+     */
+    public function delete(User $user): bool
+    {
+        return $user->delete();
     }
 }

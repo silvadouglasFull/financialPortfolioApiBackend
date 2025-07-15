@@ -2,10 +2,6 @@
 
 namespace App\Providers;
 
-// Removido App\Http\Controllers\Auth\RegisterController daqui,
-// pois o ServiceProvider não está vinculando o Controller em si.
-// Use App\Http\Controllers\Auth\RegisterController; // <-- Remova esta linha se não estiver usando-a para outra coisa.
-
 use App\Repositories\EloquentUserRepository;
 use App\Repositories\UserRepositoryInterface;
 use App\Services\Auth\AuthService;
@@ -15,6 +11,9 @@ use App\Services\Auth\RegisterValidationService;
 use App\Services\User\UserService;
 use App\Services\User\UserServiceInterface;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate; // Importe o facade Gate
+use App\Models\User; // Importe o modelo User
+use App\Enums\UserTypeEnum; // Importe o Enum UserTypeEnum
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -53,6 +52,14 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Defina o Gate 'admin-access'
+        Gate::define('admin-access', function (User $user) {
+            return $user->user_type === UserTypeEnum::ADMIN;
+        });
+
+        // Defina o Gate 'commun-access'
+        Gate::define('commun-access', function (User $user) {
+            return $user->user_type === UserTypeEnum::COMMON;
+        });
     }
 }

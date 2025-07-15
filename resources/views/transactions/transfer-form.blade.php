@@ -55,7 +55,7 @@
                 </div>
             </div>
             <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Transferir</button>
+                <button type="submit" class="btn btn-info">Transferir</button>
                 <a href="{{ route('transactions.index') }}" class="btn btn-secondary">Cancel</a>
             </div>
         </form>

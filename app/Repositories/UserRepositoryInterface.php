@@ -3,7 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection; // Importe Collection para o tipo de retorno de all()
+use Illuminate\Pagination\LengthAwarePaginator; // Importe LengthAwarePaginator para o tipo de retorno paginado
 
 /**
  * Interface UserRepositoryInterface
@@ -51,6 +52,7 @@ interface UserRepositoryInterface
      * @return User
      */
     public function update(User $user, array $data): User;
+
     /**
      * Atualiza o saldo de um usuário.
      *
@@ -60,7 +62,6 @@ interface UserRepositoryInterface
      */
     public function updateBalance(User $user, float $amount): bool;
 
-
     /**
      * Obtém todos os usuários, exceto um ID específico.
      *
@@ -68,4 +69,20 @@ interface UserRepositoryInterface
      * @return Collection<User>
      */
     public function getAllExcept(?int $excludedId = null): Collection;
+
+    /**
+     * Obtém uma coleção paginada de todos os usuários.
+     *
+     * @param int $perPage O número de itens por página.
+     * @return LengthAwarePaginator
+     */
+    public function all(int $perPage = 10): LengthAwarePaginator;
+
+    /**
+     * Exclui um usuário do banco de dados.
+     *
+     * @param User $user O objeto User a ser excluído.
+     * @return bool True se a exclusão foi bem-sucedida, false caso contrário.
+     */
+    public function delete(User $user): bool;
 }

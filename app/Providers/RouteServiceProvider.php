@@ -34,27 +34,50 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('api')
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
-            Route::middleware('api') // Garante que use o middleware 'api'
-                ->prefix('api')     // Garante o prefixo 'api'
-                ->group(base_path('routes/api/register.php'));
 
-            Route::middleware('api') // Garante que use o middleware 'api'
-                ->prefix('api')     // Garante o prefixo 'api'
+            Route::middleware('api')
+                ->prefix('api')
                 ->group(base_path('routes/api/auth.php'));
 
-            Route::middleware('api') // Garante que use o middleware 'api'
-                ->prefix('api')     // Garante o prefixo 'api'
-                ->group(base_path('routes/api/transactions.php'));
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/api/register.php'));
 
-            Route::middleware('api') // Garante que use o middleware 'api'
-                ->prefix('api')     // Garante o prefixo 'api'
+            Route::middleware('api')
+                ->prefix('api')
                 ->group(base_path('routes/api/transactions.deposit.php'));
 
-            Route::middleware('api') // Garante que use o middleware 'api'
-                ->prefix('api')     // Garante o prefixo 'api'
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/api/transactions.php'));
+
+            Route::middleware('api')
+                ->prefix('api')
                 ->group(base_path('routes/api/transactions.reverse.php'));
+
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/api/user.php'));
+
+            // rotas para web
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/web/admin.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/web/auth.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/web/register.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/web/transaction.php'));
+
+            Route::middleware('web')
+                ->prefix('admin')
+                ->group(base_path('routes/web/user.php'));
         });
     }
 }

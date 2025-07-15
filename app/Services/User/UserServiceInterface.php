@@ -3,19 +3,51 @@
 namespace App\Services\User;
 
 use App\Models\User;
+use Illuminate\Pagination\LengthAwarePaginator; // Para o método listUsers
 
-/**
- * Interface UserServiceInterface
- * Define o contrato para as operações de lógica de negócio relacionadas a usuários.
- */
 interface UserServiceInterface
 {
     /**
-     * Cria um novo usuário.
+     * Cria um novo usuário no sistema.
      *
-     * @param array $userData Dados do usuário, já validados.
-     * @return User O objeto User criado.
-     * @throws \Exception Se houver um problema na criação.
+     * @param array $userData Os dados do usuário.
+     * @return User
+     * @throws \Exception
      */
     public function createUser(array $userData): User;
+
+    /**
+     * Lista usuários de forma paginada.
+     *
+     * @param int $perPage
+     * @return LengthAwarePaginator
+     */
+    public function listUsers(int $perPage = 10): LengthAwarePaginator;
+
+    /**
+     * Busca um usuário pelo ID.
+     *
+     * @param int $userId
+     * @return User|null
+     */
+    public function findUserById(int $userId): ?User;
+
+    /**
+     * Atualiza um usuário existente no sistema.
+     *
+     * @param User $user O objeto User a ser atualizado.
+     * @param array $userData Os dados para atualização.
+     * @return User
+     * @throws \Exception
+     */
+    public function updateUser(User $user, array $userData): User;
+
+    /**
+     * Exclui um usuário do sistema.
+     *
+     * @param User $user O objeto User a ser excluído.
+     * @return bool
+     * @throws \Exception
+     */
+    public function deleteUser(User $user): bool;
 }

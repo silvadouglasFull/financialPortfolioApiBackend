@@ -3,10 +3,12 @@
 namespace App\Services\User;
 
 use App\Models\User;
-use App\Repositories\UserRepositoryInterface; // Importar a interface do repositório
-use App\Services\Auth\RegisterValidationServiceInterface; // Opcional: injetar aqui se o serviço for responsável por re-validar
-use Illuminate\Validation\ValidationException; // Para lançar exceções de validação, se aplicável
-use Throwable; // Para capturar exceções genéricas
+use App\Repositories\UserRepositoryInterface;
+use App\Services\Auth\RegisterValidationServiceInterface;
+use Illuminate\Validation\ValidationException;
+use Throwable;
+use Illuminate\Support\Facades\Log; // Importar para logar erros
+use Illuminate\Pagination\LengthAwarePaginator; // Para o tipo de retorno
 
 /**
  * Classe UserService
@@ -23,7 +25,7 @@ class UserService implements UserServiceInterface
     /**
      * @var RegisterValidationServiceInterface
      */
-    protected RegisterValidationServiceInterface $registerValidationService; // Injetado para acesso a validações
+    protected RegisterValidationServiceInterface $registerValidationService;
 
     /**
      * Construtor do UserService.
@@ -33,7 +35,7 @@ class UserService implements UserServiceInterface
      */
     public function __construct(
         UserRepositoryInterface $userRepository,
-        RegisterValidationServiceInterface $registerValidationService // Injetar o serviço de validação
+        RegisterValidationServiceInterface $registerValidationService
     ) {
         $this->userRepository = $userRepository;
         $this->registerValidationService = $registerValidationService;
@@ -42,43 +44,112 @@ class UserService implements UserServiceInterface
     /**
      * Cria um novo usuário no sistema aplicando as regras de negócio.
      *
-     * @param array $userData Os dados do usuário a serem criados (já validados pelo RegisterRequest/Service).
+     * @param array $userData Os dados do usuário a serem criados.
      * @return User O objeto User criado.
-     * @throws ValidationException Se alguma regra de unicidade falhar (apesar de já validado pelo Request).
-     * @throws Throwable Se ocorrer um erro inesperado durante a criação.
+     * @throws \Exception Se ocorrer um erro inesperado.
      */
     public function createUser(array $userData): User
     {
-        // Re-validação de unicidade (redundante mas como fallback se a Request falhar)
-        // No entanto, o ideal é que a RegisterRequest já tenha garantido isso.
-        // Se o RegisterRequest está usando RegisterValidationService, as validações de 'unique'
-        // já foram tratadas lá. Este ponto é mais para regras de negócio que não são apenas de formato.
-
-        // Exemplo: Saldo inicial garantido aqui, mesmo que o request envie outro valor
-        $userData['balance'] = 0.00;
+        $userData['balance'] = 0.00; // Garante saldo inicial
 
         try {
-            // A senha já vem hasheada do RegisterRequest se o cast 'hashed' estiver no Model
-            // ou se o mutator `setPasswordAttribute` estiver ativo.
-            // Se não, faríamos Hash::make($userData['password']) aqui.
-
             $user = $this->userRepository->create($userData);
-
-            // Outras lógicas de negócio após a criação do usuário, por exemplo:
-            // - Envio de e-mail de boas-vindas
-            // - Geração de evento UserRegisteredEvent::dispatch($user);
-
+            Log::info("User created successfully: " . $user->email);
             return $user;
         } catch (Throwable $e) {
-            // Logar o erro para depuração
-            // Log::error("Erro ao criar usuário: " . $e->getMessage(), ['exception' => $e]);
-            // Relançar uma exceção mais amigável ou específica para a aplicação
-            throw new \Exception("Falha ao criar usuário: " . $e->getMessage(), 0, $e);
+            Log::error("Failed to create user: " . $e->getMessage(), ['exception' => $e, 'userData' => $userData]);
+            throw new \Exception("Failed to create user: " . $e->getMessage(), 0, $e);
         }
     }
 
-    // Métodos futuros para outras operações de usuário:
-    // public function updateUser(User $user, array $data): User { ... }
-    // public function getUserBalance(User $user): float { ... }
-    // public function canTransfer(User $user): bool { ... } // Exemplo: merchants não podem transferir
+
+    /**
+     * Lista usuários de forma paginada.
+     *
+     * @param int $perPage
+     * @return LengthAwarePaginator
+     * @throws \Exception Se ocorrer um erro inesperado.
+     */
+    public function listUsers(int $perPage = 10): LengthAwarePaginator
+    {
+        try {
+            // Delega a busca paginada ao repositório.
+            return $this->userRepository->all($perPage);
+        } catch (Throwable $e) {
+            Log::error("Failed to list users: " . $e->getMessage(), ['exception' => $e]);
+            throw new \Exception("Failed to retrieve users: " . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Busca um usuário pelo ID.
+     *
+     * @param int $userId
+     * @return User|null
+     * @throws \Exception Se ocorrer um erro inesperado.
+     */
+    public function findUserById(int $userId): ?User
+    {
+        try {
+            return $this->userRepository->findById((string)$userId); // Assegura que o ID é string se findById esperar string
+        } catch (Throwable $e) {
+            Log::error("Failed to find user by ID: " . $e->getMessage(), ['exception' => $e, 'userId' => $userId]);
+            throw new \Exception("Failed to find user: " . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Atualiza um usuário existente no sistema.
+     *
+     * @param User $user O objeto User a ser atualizado.
+     * @param array $userData Os dados para atualização.
+     * @return User
+     * @throws \Exception Se ocorrer um erro inesperado.
+     */
+    public function updateUser(User $user, array $userData): User
+    {
+        try {
+            $user = $this->userRepository->update($user, $userData);
+            Log::info("User updated successfully: " . $user->email);
+            return $user;
+        } catch (ValidationException $e) {
+            // Captura erros de validação de unicidade se forem lançados pelo serviço de validação
+            throw $e;
+        } catch (Throwable $e) {
+            Log::error("Failed to update user: " . $e->getMessage(), ['exception' => $e, 'userId' => $user->id, 'userData' => $userData]);
+            throw new \Exception("Failed to update user: " . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Exclui um usuário do sistema.
+     *
+     * @param User $user O objeto User a ser excluído.
+     * @return bool
+     * @throws \Exception Se ocorrer um erro inesperado.
+     */
+    public function deleteUser(User $user): bool
+    {
+        try {
+            // Implemente aqui regras de negócio adicionais antes de excluir.
+            // Ex: Verificar se o usuário tem transações pendentes ou saldo.
+            // if ($user->balance > 0) {
+            //     throw new \Exception("Cannot delete user with remaining balance.");
+            // }
+            // if ($user->hasPendingTransactions()) { // Exemplo de método no modelo
+            //     throw new \Exception("Cannot delete user with pending transactions.");
+            // }
+
+            $result = $this->userRepository->delete($user);
+            if ($result) {
+                Log::info("User deleted successfully: " . $user->email);
+            } else {
+                Log::warning("Failed to delete user: " . $user->email . " (Repository returned false)");
+            }
+            return $result;
+        } catch (Throwable $e) {
+            Log::error("Failed to delete user: " . $e->getMessage(), ['exception' => $e, 'userId' => $user->id]);
+            throw new \Exception("Failed to delete user: " . $e->getMessage(), 0, $e);
+        }
+    }
 }

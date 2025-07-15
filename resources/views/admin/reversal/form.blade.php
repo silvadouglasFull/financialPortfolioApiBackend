@@ -15,7 +15,7 @@
             @if (!empty($originalTransactionId))
                 {{-- Card for Transaction Details --}}
                 @if ($transactionToRevert) {{-- Only show if transaction was successfully retrieved --}}
-                    <div class="card card-primary"> {{-- Use card-primary for info display --}}
+                    <div class="card card-info"> {{-- Use card-info for info display --}}
                         <div class="card-header">
                             <h3 class="card-title">Original Transaction Details (#{{ $transactionToRevert->id }})</h3>
                         </div>

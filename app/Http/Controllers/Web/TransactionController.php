@@ -13,6 +13,7 @@ use Illuminate\View\View; // Retorno para exibir a view
 use Illuminate\Support\Facades\Log;
 use Exception;
 use App\Enums\TransactionStatus; // Importar TransactionStatus
+use App\Enums\UserTypeEnum;
 use Illuminate\Support\Facades\Auth; // Para acessar o usuário autenticado
 use App\Services\Transactions\RetrieveTransactionsInterface;
 
