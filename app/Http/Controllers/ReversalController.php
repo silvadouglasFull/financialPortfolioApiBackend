@@ -57,12 +57,17 @@ class ReversalController extends Controller
                 'error_message' => $e->getMessage(),
                 'exception' => $e
             ]);
-
+            $statusCode = Response::HTTP_BAD_REQUEST;
+            $message = 'Falha ao realizar a reversão.';
+            if ($e->getCode() === Response::HTTP_FORBIDDEN) {
+                $statusCode = Response::HTTP_FORBIDDEN;
+                $message = $e->getMessage();
+            }
             // Retorna uma resposta de erro adequada
             return response()->json([
-                'message' => 'Falha ao realizar a reversão.',
+                'message' => $message,
                 'error' => $e->getMessage(),
-            ], Response::HTTP_BAD_REQUEST); // Usar 400 Bad Request para erros de negócio/validação de serviço
+            ], $statusCode); // Usar 400 Bad Request para erros de negócio/validação de serviço
         }
     }
 }

@@ -12,6 +12,7 @@ use App\Enums\UserTypeEnum;
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use App\Enums\TransactionReversalStatus; // Importar o Enum de status de reversão
+use Illuminate\Http\Response;
 
 class ReversalTransactionTest extends TestCase
 {
@@ -524,5 +525,56 @@ class ReversalTransactionTest extends TestCase
         ]);
         // Apenas um registro de reversão deve existir
         $this->assertDatabaseCount('transaction_reversals', 1);
+    }
+    /** @test */
+    public function testReversalIsDeniedForNonAdminUser()
+    {
+        $commonUser = $this->createCommonUser(); // Usuário comum
+        $payer = $this->createCommonUser(500.00);
+        $payee = $this->createCommonUser(500.00);
+        $transferAmount = 100.00;
+        $reasonForReversal = 'Tentativa de reversão por usuário não autorizado.';
+
+        // Criar uma transação de transferência inicial
+        $originalTransaction = Transaction::factory()->create([
+            'payer_id' => $payer->id,
+            'payee_id' => $payee->id,
+            'amount' => $transferAmount,
+            'type' => TransactionType::TRANSFER,
+            'status' => TransactionStatus::COMPLETED,
+            'reverted_from' => null,
+            'reason' => null,
+        ]);
+
+        // Chamar o endpoint de reversão autenticado como um usuário comum
+        $response = $this->actingAs($commonUser)->postJson('/api/transactions/reverse', [
+            'original_transaction_id' => $originalTransaction->id,
+            'reason' => $reasonForReversal,
+        ]);
+
+        // Verificar o status de erro e a mensagem
+        $response->assertStatus(Response::HTTP_FORBIDDEN) // Forbidden (ou 400 Bad Request, dependendo de como você mapeia Exceptions no Handler)
+            ->assertJson([
+                'message' => 'Apenas usuários administradores podem reverter transações.'
+            ]);
+
+        // Verificar que a transação original NÃO foi revertida
+        $originalTransaction->refresh();
+        $this->assertEquals(TransactionStatus::COMPLETED, $originalTransaction->status); // Status deve permanecer COMPLETED
+
+        // Verificar que NÃO foi criada uma nova transação de REVERSAL
+        $this->assertDatabaseMissing('transactions', [
+            'reverted_from' => $originalTransaction->id,
+            'type' => TransactionType::REVERSAL,
+        ]);
+
+        // Verificar que um registro de reversão DENIED foi criado
+        $reversalRecord = TransactionReversal::where('original_transaction_id', $originalTransaction->id)
+            ->where('reversed_by_user_id', $commonUser->id)
+            ->first();
+        $this->assertNotNull($reversalRecord);
+        $this->assertEquals(TransactionReversalStatus::DENIED, $reversalRecord->status);
+        $this->assertStringContainsString('Negada: Usuário não ADMIN', $reversalRecord->reason);
+        $this->assertNull($reversalRecord->reversal_transaction_id); // Nenhuma transação de reversão associada
     }
 }

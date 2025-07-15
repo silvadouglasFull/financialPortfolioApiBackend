@@ -18,7 +18,7 @@ enum UserTypeEnum: string
 
     case COMMON = 'COMMON';
     case MERCHANT = 'MERCHANT';
-
+    case ADMIN = 'ADMIN';
     /**
      * Retorna uma descrição amigável para cada tipo de usuário.
      *

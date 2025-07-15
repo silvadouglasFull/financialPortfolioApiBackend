@@ -8,4 +8,5 @@ enum TransactionReversalStatus: string
     case COMPLETED = 'COMPLETED';
     case FAILED = 'FAILED';
     case REVERSED = 'REVERSED';
+    case DENIED = 'DENIED';
 }

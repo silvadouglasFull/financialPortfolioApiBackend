@@ -10,10 +10,12 @@ use App\Repositories\Reversal\TransactionReversalRepositoryInterface;
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use App\Enums\TransactionReversalStatus;
+use App\Enums\UserTypeEnum; // Importar o UserTypeEnum
 use App\Events\TransactionReversed;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Exception;
+use Exception; // Usaremos a Exception genérica, ou você pode criar uma específica
+use Illuminate\Http\Response;
 
 class ReversalService implements ReversalServiceInterface
 {
@@ -51,12 +53,27 @@ class ReversalService implements ReversalServiceInterface
     {
         Log::info("Iniciando reversão para a transação: {$originalTransactionId} pelo usuário: {$reversedBy->id}. Motivo: {$reason}");
 
+        if ($reversedBy->user_type !== UserTypeEnum::ADMIN) {
+            Log::warning("Tentativa de reversão negada. Usuário #{$reversedBy->id} não é ADMIN. Tipo: {$reversedBy->user_type->value}");
+
+            // Registrar a tentativa de reversão negada
+            $this->transactionReversalRepository->create([
+                'original_transaction_id' => $originalTransactionId,
+                'reversal_transaction_id' => null, // Não há transação de reversão criada
+                'reversed_by_user_id' => $reversedBy->id,
+                'reason' => $reason . " (Negada: Usuário não ADMIN)",
+                'status' => TransactionReversalStatus::DENIED,
+            ]);
+
+            throw new Exception("Apenas usuários administradores podem reverter transações.", Response::HTTP_FORBIDDEN);
+        }
+
         $originalTransaction = $this->transactionRepository->findById($originalTransactionId);
 
         // 1. Validar se a transação original existe
         if (!$originalTransaction) {
             Log::error("Tentativa de reverter transação inexistente: {$originalTransactionId}");
-            throw new Exception("Transação original não encontrada.");
+            throw new Exception("Transação original não encontrada.", Response::HTTP_BAD_REQUEST);
         }
 
         // 2. Validar o status da transação original (não pode ser já revertida, negada ou falha)
@@ -72,7 +89,7 @@ class ReversalService implements ReversalServiceInterface
         // 3. Verificar se a transação já possui um registro de reversão para evitar duplicações
         if ($this->transactionReversalRepository->findByOriginalTransactionId($originalTransactionId)) {
             Log::warning("Tentativa de reverter transação já em processo de reversão ou já revertida: {$originalTransactionId}");
-            throw new Exception("Esta transação já possui um registro de reversão pendente ou concluída.");
+            throw new Exception("Esta transação já possui um registro de reversão pendente ou concluída.", Response::HTTP_BAD_REQUEST);
         }
 
         // Recuperar pagador e recebedor da transação original
@@ -81,6 +98,8 @@ class ReversalService implements ReversalServiceInterface
 
         // Iniciar transação de banco de dados para garantir atomicidade
         DB::beginTransaction();
+
+        $transactionReversalRecord = null; // Inicializar para garantir que esteja definido para o catch
 
         try {
             // 4. Registrar a intenção de reversão na tabela transaction_reversals (status PENDING)
@@ -96,7 +115,7 @@ class ReversalService implements ReversalServiceInterface
             if ($originalTransaction->type === TransactionType::TRANSFER) {
                 // Transferência: Pagador (payer) recupera o valor, Recebedor (payee) perde o valor
                 if (!$payer) { // Apenas um fallback, payer deve existir para TRANSFER
-                    throw new Exception("Pagador da transação original não encontrado para reversão de transferência.");
+                    throw new Exception("Pagador da transação original não encontrado para reversão de transferência.", Response::HTTP_BAD_REQUEST);
                 }
                 $this->userRepository->updateBalance($payer, $originalTransaction->amount); // Pagador recupera
                 $this->userRepository->updateBalance($payee, -$originalTransaction->amount); // Recebedor perde
@@ -112,9 +131,10 @@ class ReversalService implements ReversalServiceInterface
 
             // 6. Criar uma nova transação do tipo REVERSAL na tabela 'transactions'
             // O valor da reversão é o mesmo da original, mas com o tipo REVERSAL
+            // Ajuste para o caso de depósito: Payer da REVERSAL é o Payee da original, Payee da REVERSAL é nulo
             $reversalTransaction = $this->transactionRepository->create([
-                'payer_id' => $originalTransaction->payee_id, // Em uma reversão, quem "paga" é quem recebeu na original
-                'payee_id' => $originalTransaction->payer_id, // E quem "recebe" é quem pagou na original
+                'payer_id' => $originalTransaction->type === TransactionType::DEPOSIT ? $originalTransaction->payee_id : $originalTransaction->payee_id,
+                'payee_id' => $originalTransaction->type === TransactionType::DEPOSIT ? null : $originalTransaction->payer_id,
                 'amount' => $originalTransaction->amount,
                 'status' => TransactionStatus::COMPLETED, // A transação de REVERSAL em si foi "completada"
                 'type' => TransactionType::REVERSAL,
@@ -122,6 +142,7 @@ class ReversalService implements ReversalServiceInterface
                 'reason' => $reason,
             ]);
             Log::info("Nova transação de REVERSAL criada: {$reversalTransaction->id}");
+
 
             // 7. Atualizar o status da transação original para REVERSED
             $this->transactionRepository->updateStatus($originalTransaction, TransactionStatus::REVERSED, $reason);
@@ -153,7 +174,7 @@ class ReversalService implements ReversalServiceInterface
         } catch (Exception $e) {
             DB::rollBack(); // Reverter todas as alterações em caso de erro
             // Atualizar o status do registro de reversão para FAILED se ele foi criado no try
-            if (isset($transactionReversalRecord) && $transactionReversalRecord->exists) {
+            if ($transactionReversalRecord && $transactionReversalRecord->exists) {
                 $this->transactionReversalRepository->update($transactionReversalRecord, [
                     'status' => TransactionReversalStatus::FAILED,
                     'reason' => $reason . " (Falha interna: " . $e->getMessage() . ")" // Adicionar detalhe da falha
@@ -167,7 +188,7 @@ class ReversalService implements ReversalServiceInterface
                 'error_message' => $e->getMessage(),
                 'exception' => $e
             ]);
-            throw new Exception("Não foi possível processar a reversão: " . $e->getMessage());
+            throw new Exception("Não foi possível processar a reversão: " . $e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
 }
