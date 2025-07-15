@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Enums\TransactionStatus; // Importar o Enum TransactionStatus
+use App\Enums\TransactionType;
 use Illuminate\Support\Str; // Para gerar UUID no creating
 
 /**
@@ -45,6 +46,7 @@ class Transaction extends Model
         'amount',
         'status',
         'reverted_from',
+        'type'
     ];
 
     /**
@@ -59,6 +61,7 @@ class Transaction extends Model
         'amount' => 'decimal:2', // Converte automaticamente para float com 2 casas decimais
         'status' => TransactionStatus::class, // Usa o Enum para o campo status
         'reverted_from' => 'string',
+        'type' => TransactionType::class
     ];
 
     /**

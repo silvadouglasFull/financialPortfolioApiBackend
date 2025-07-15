@@ -25,36 +25,33 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // 🔽 REGISTRO DO ALIAS DO MIDDLEWARE
         Route::aliasMiddleware('transaction.throttle', TransactionThrottle::class);
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
         $this->routes(function () {
-            // Rotas da API principal
             Route::middleware('api')
                 ->prefix('api')
                 ->group(base_path('routes/api.php'));
-
-            // Rotas WEB principal
-            Route::middleware('web')
-                ->group(base_path('routes/web.php'));
-
-            // NOVO: Adiciona rotas de registro em um grupo separado da API
             Route::middleware('api') // Garante que use o middleware 'api'
                 ->prefix('api')     // Garante o prefixo 'api'
                 ->group(base_path('routes/register.php'));
 
-            // NOVO: Adiciona rotas de autenticação em um grupo separado da API
             Route::middleware('api') // Garante que use o middleware 'api'
                 ->prefix('api')     // Garante o prefixo 'api'
                 ->group(base_path('routes/auth.php'));
 
-            // NOVO: Adiciona rotas de transações em um grupo separado da API
             Route::middleware('api') // Garante que use o middleware 'api'
                 ->prefix('api')     // Garante o prefixo 'api'
                 ->group(base_path('routes/transactions.php'));
+
+            Route::middleware('api') // Garante que use o middleware 'api'
+                ->prefix('api')     // Garante o prefixo 'api'
+                ->group(base_path('routes/transactions.deposit.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/web.php'));
         });
     }
 }

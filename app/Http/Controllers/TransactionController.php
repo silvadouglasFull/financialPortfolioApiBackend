@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DepositRequest;
 use App\Http\Requests\TransferRequest; // Importar o Form Request
 use App\Services\Transfer\TransferServiceInterface; // Importar a interface do serviço de transferência
 use App\Repositories\UserRepositoryInterface; // Importar o repositório de usuário para buscar o recebedor
+use App\Services\Deposit\DepositServiceInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response; // Para constantes de status HTTP
 use Illuminate\Support\Facades\Log; // Para logs de erro
@@ -19,6 +21,7 @@ class TransactionController extends Controller
 {
     protected TransferServiceInterface $transferService;
     protected UserRepositoryInterface $userRepository; // Para buscar o payee
+    protected DepositServiceInterface $depositService; // o DepositServiceInterface
 
     /**
      * Construtor do TransactionController.
@@ -28,9 +31,11 @@ class TransactionController extends Controller
      */
     public function __construct(
         TransferServiceInterface $transferService,
+        DepositServiceInterface $depositService,
         UserRepositoryInterface $userRepository
     ) {
         $this->transferService = $transferService;
+        $this->depositService = $depositService;
         $this->userRepository = $userRepository;
     }
 
@@ -97,6 +102,37 @@ class TransactionController extends Controller
                 'message' => 'Erro ao realizar a transferência.',
                 'error' => $errorMessage,
             ], $statusCode);
+        }
+    }
+    /**
+     * Realiza um depósito de dinheiro para o usuário autenticado.
+     *
+     * @param DepositRequest $request
+     * @return JsonResponse
+     */
+    public function deposit(DepositRequest $request): JsonResponse
+    {
+        $user = $request->user(); // Usuário autenticado é quem está depositando
+        $amount = $request->amount;
+        try {
+            $transaction = $this->depositService->performDeposit($user, $amount);
+
+            return response()->json([
+                'message' => 'Depósito realizado com sucesso!',
+                'transaction' => $transaction, // Retorna os detalhes da transação de depósito
+            ], Response::HTTP_OK);
+        } catch (Exception $e) {
+            Log::error('Falha no depósito de dinheiro: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'amount' => $amount,
+                'error_message' => $e->getMessage(),
+                'exception' => $e
+            ]);
+
+            return response()->json([
+                'message' => 'Erro ao realizar o depósito.',
+                'error' => 'Ocorreu um erro inesperado ao processar o depósito. Por favor, tente novamente mais tarde.',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 }
