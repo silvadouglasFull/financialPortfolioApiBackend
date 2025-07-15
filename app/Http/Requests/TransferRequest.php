@@ -2,9 +2,32 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\UserTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: "TransferRequest",
+    title: "Transfer Request",
+    description: "Data required for a user to initiate a money transfer.",
+    required: ["payee_id", "amount"],
+    properties: [
+        new OA\Property(
+            property: "payee_id",
+            type: "string",
+            format: "uuid",
+            example: "987e6543-d2c1-b0a9-8765-43210fedcba9",
+            description: "The UUID of the user who will receive the transfer. Must be an existing user and cannot be the payer's own ID."
+        ),
+        new OA\Property(
+            property: "amount",
+            type: "number",
+            format: "float",
+            example: 250.75,
+            description: "The amount to be transferred. Must be a positive number greater than zero."
+        )
+    ],
+    type: "object"
+)]
 class TransferRequest extends FormRequest
 {
     /**

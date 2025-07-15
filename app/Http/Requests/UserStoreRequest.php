@@ -2,12 +2,66 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\UserTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Services\Auth\RegisterValidationServiceInterface; // Manter para validações de unicidade
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth; // Para verificar se o usuário é admin
-use App\Enums\UserTypeEnum; // Para verificar o tipo de usuário
+use OpenApi\Attributes as OA; // Import the OpenApi Attributes
 
+#[OA\Schema(
+    schema: "UserStoreRequest",
+    title: "User Store Request",
+    description: "Data required to create a new user by an administrator.",
+    required: ["name", "email", "document", "password", "password_confirmation", "user_type"],
+    properties: [
+        new OA\Property(
+            property: "name",
+            type: "string",
+            maxLength: 255,
+            example: "Novo Admin",
+            description: "The full name of the user."
+        ),
+        new OA\Property(
+            property: "email",
+            type: "string",
+            format: "email",
+            maxLength: 255,
+            example: "new.admin@example.com",
+            description: "The unique email address for the user."
+        ),
+        new OA\Property(
+            property: "document",
+            type: "string",
+            maxLength: 14,
+            example: "12345678901234",
+            description: "The unique document number (CPF or CNPJ) for the user. Only digits."
+        ),
+        new OA\Property(
+            property: "password",
+            type: "string",
+            format: "password",
+            minLength: 8,
+            example: "StrongP@ssw0rd",
+            description: "The user's password. Must be at least 8 characters and confirmed."
+        ),
+        new OA\Property(
+            property: "password_confirmation",
+            type: "string",
+            format: "password",
+            minLength: 8,
+            example: "StrongP@ssw0rd",
+            description: "Confirmation of the user's password. Must match 'password'."
+        ),
+        new OA\Property(
+            property: "user_type",
+            type: "string",
+            enum: ["common", "shopkeeper", "admin"],
+            example: "admin",
+            description: "The type of user being created."
+        )
+    ],
+    type: "object"
+)]
 class UserStoreRequest extends FormRequest
 {
     /**
@@ -75,7 +129,7 @@ class UserStoreRequest extends FormRequest
         // Hasheia a senha ANTES de ser validada e passada para o controller.
         // Isso é importante para que a regra 'confirmed' funcione com a senha já hasheada
         // e para que você não precise hashear no Service ou Controller.
-        if ($this->has('password')) {
+        if ($this->has('password') && !empty($this->input('password'))) {
             $this->merge([
                 'password' => bcrypt($this->input('password')),
             ]);

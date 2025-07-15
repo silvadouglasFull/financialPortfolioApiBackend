@@ -2,12 +2,25 @@
 
 namespace App\Events;
 
-use App\Models\Transaction; // Importar a Model Transaction
-use App\Models\User;        // Importar a Model User
+use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: "MoneyTransferredEvent",
+    title: "MoneyTransferredEvent",
+    description: "Evento disparado após uma transferência de dinheiro bem-sucedida.",
+    properties: [
+        new OA\Property(property: "transaction", ref: "#/components/schemas/Transaction", description: "A instância da transação concluída."),
+        new OA\Property(property: "payer", ref: "#/components/schemas/User", description: "O usuário pagador."),
+        new OA\Property(property: "payee", ref: "#/components/schemas/User", description: "O usuário recebedor."),
+        new OA\Property(property: "amount", type: "number", format: "float", example: 50.00, description: "O valor transferido.")
+    ],
+    type: "object"
+)]
 class MoneyTransferred
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;

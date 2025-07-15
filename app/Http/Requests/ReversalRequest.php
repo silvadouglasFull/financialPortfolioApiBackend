@@ -3,7 +3,32 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: "ReversalRequest",
+    title: "Reversal Request",
+    description: "Data required to request a transaction reversal.",
+    required: ["original_transaction_id", "reason"],
+    properties: [
+        new OA\Property(
+            property: "original_transaction_id",
+            type: "string",
+            format: "uuid",
+            example: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+            description: "The UUID of the original transaction to be reversed. This transaction must exist."
+        ),
+        new OA\Property(
+            property: "reason",
+            type: "string",
+            minLength: 10,
+            maxLength: 255,
+            example: "Duplicate transaction due to system error.",
+            description: "The reason for the reversal. Must be at least 10 characters long."
+        )
+    ],
+    type: "object"
+)]
 class ReversalRequest extends FormRequest
 {
     /**

@@ -21,7 +21,12 @@ class AdminMiddleware
         if (!Auth::check()) {
             // Se não estiver autenticado, redireciona para a página de login
             // ou aborta com 401 Unauthorized para APIs
-            return redirect()->route('login'); // Ou abort(401, 'Não autenticado.');
+            // Para documentação OpenAPI, é importante indicar o que aconteceria em uma rota de API.
+            // Para rotas web, o redirect é mais comum.
+            if ($request->expectsJson()) {
+                abort(401, 'Não autenticado.'); // Retorna JSON para APIs
+            }
+            return redirect()->route('login');
         }
 
         // Verifica se o usuário autenticado é um administrador
@@ -30,7 +35,10 @@ class AdminMiddleware
         if ($request->user()->user_type !== UserTypeEnum::ADMIN) {
             // Se não for admin, redireciona para alguma página de acesso negado
             // ou aborta com 403 Forbidden
-            abort(403, 'Acesso não autorizado. Você não tem permissão de administrador.'); // Ou redirect()->route('home');
+            if ($request->expectsJson()) {
+                abort(403, 'Acesso não autorizado. Você não tem permissão de administrador.'); // Retorna JSON para APIs
+            }
+            return redirect()->route('home')->with('error', 'Você não tem permissão para acessar esta página.'); // Redireciona para web
         }
 
         return $next($request);

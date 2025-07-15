@@ -2,6 +2,14 @@
 
 namespace App\Enums;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Schema(
+    schema: "TransactionStatus",
+    type: "string",
+    enum: ["PENDING", "COMPLETED", "FAILED", "REVERSED", "DENIED"],
+    example: "PENDING"
+)]
 // PHP 8.1+ Native Enum
 enum TransactionStatus: string
 {

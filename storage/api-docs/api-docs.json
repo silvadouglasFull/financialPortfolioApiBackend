@@ -1,0 +1,2261 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "financialPortfolioApiBackend",
+        "description": "API Documentation for your application.",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000/api",
+            "description": "Development Server"
+        },
+        {
+            "url": "http://localhost",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/google/redirect": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Redirect to Google for authentication",
+                "operationId": "481df5647624a0a9e1cc44747994db78",
+                "responses": {
+                    "302": {
+                        "description": "Redirects to Google's authentication page."
+                    }
+                }
+            }
+        },
+        "/google/callback": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Handle Google authentication callback",
+                "operationId": "586f999d90783dedb953928d5eba4d99",
+                "responses": {
+                    "200": {
+                        "description": "Successful Google login, returns authentication token and user data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login com Google realizado com sucesso!"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "YOUR_SANCTUM_TOKEN"
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/UserGoogleLoginResponse"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failed with Google.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Falha na autenticação com Google."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Não foi possível autenticar com sua conta Google. Por favor, tente novamente."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error during user creation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ocorreu um erro ao tentar criar o usuário via Google."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Por favor, tente novamente."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Authenticate user and get API token",
+                "operationId": "591f4aca6b2ad2504cfb286af5fe3e3e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "secret_password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful login, returns authentication token and user data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login realizado com sucesso!"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "YOUR_SANCTUM_TOKEN"
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/UserResponse"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failed due to invalid credentials.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ocorreu um erro interno ao tentar realizar o login."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Por favor, tente novamente mais tarde."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new user",
+                "operationId": "6526a7845e1078d2ca4047f9dfeb7388",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Usuário registrado com sucesso!"
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/UserResponse"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ocorreu um erro ao tentar registrar o usuário. Por favor, tente novamente mais tarde."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Detalhes técnicos do erro em ambiente de desenvolvimento."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions/reverse": {
+            "post": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Reverse a completed transaction",
+                "operationId": "be8340b36739c9d42fc039a11394f499",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReversalRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Transaction reversed successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Reversal successful!"
+                                        },
+                                        "reversal_transaction": {
+                                            "$ref": "#/components/schemas/TransactionResponse"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, e.g., invalid transaction ID, already reversed, or business rule violation.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Falha ao realizar a reversão."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Transaction not found or not eligible for reversal."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing or invalid token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - user does not have permission to reverse this transaction.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnauthorizedReversalError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error - invalid input data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Ocorreu um erro interno."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Detalhes técnicos do erro."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/transactions/transfer": {
+            "post": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Perform a money transfer between users",
+                "operationId": "3c8a4f994fb8ebaae0ed746708e69327",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/TransferRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Transfer performed successfully or denied with a reason.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Transferência realizada com sucesso!"
+                                        },
+                                        "transaction": {
+                                            "$ref": "#/components/schemas/TransactionResponse"
+                                        },
+                                        "reason": {
+                                            "description": "Reason for denial if status is DENIED.",
+                                            "type": "string",
+                                            "example": "Insufficient balance",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing or invalid token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - user type not allowed to transfer.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Usuários do tipo Lojista não podem realizar transferências."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Tipo de usuário não permitido."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Payee not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Recebedor não encontrado."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "O ID do usuário recebedor não corresponde a um usuário existente."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error - invalid input data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao realizar a transferência."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Ocorreu um erro inesperado ao processar a transferência. Por favor, tente novamente mais tarde."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/transactions/deposit": {
+            "post": {
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Perform a money deposit for the authenticated user",
+                "operationId": "50765c5eda03030a06d3a6d9635e08e4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DepositRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Deposit performed successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Depósito realizado com sucesso!"
+                                        },
+                                        "transaction": {
+                                            "$ref": "#/components/schemas/TransactionResponse"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing or invalid token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationError"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error - invalid input data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Erro ao realizar o depósito."
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Ocorreu um erro inesperado ao processar o depósito. Por favor, tente novamente mais tarde."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get a list of all users",
+                "description": "Display a listing of the users.",
+                "operationId": "566aed8efb436ca506e0ef51a032ecd9",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Number of users per page",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/UserResponse"
+                                            }
+                                        },
+                                        "links": {
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing or invalid token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - user does not have admin access.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This action is unauthorized."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to retrieve users."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create a new user",
+                "description": "Store a newly created user in storage.",
+                "operationId": "be551c1d694a01c164966f58bfa77013",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserStoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User created successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User created successfully!"
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/UserResponse"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing or invalid token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - user does not have admin access.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This action is unauthorized."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to create user."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/{id}": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get a single user by ID",
+                "description": "Display the specified user.",
+                "operationId": "6f51bd5fa2dddcd25e44cfa53dcbd10a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user to retrieve",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing or invalid token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - user does not have access to this user's data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This action is unauthorized."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to retrieve user."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update an existing user",
+                "description": "Update the specified user in storage.",
+                "operationId": "070e37fc9aff78ae73860751bc990ed3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user to update",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserUpdateRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User updated successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User updated successfully!"
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/UserResponse"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing or invalid token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - user does not have access to update this user's data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This action is unauthorized."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation failed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to update user."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete a user",
+                "description": "Remove the specified user from storage.",
+                "operationId": "0b4133ed462528a5e648b88ead11e929",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the user to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "User deleted successfully."
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing or invalid token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - user does not have admin access or cannot delete themselves.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This action is unauthorized."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User not found."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to delete user: Cannot delete yourself."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/profile": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get the authenticated user's profile",
+                "description": "Display the authenticated user's profile.",
+                "operationId": "85d739158552477973430d9c6aaf191e",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - missing or invalid token.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed to retrieve user profile."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/password/email": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Send password reset link to user's email",
+                "operationId": "73bdfba58026338771ed00abfe2a6376",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "description": "The user's email address.",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset link sent successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "We have emailed your password reset link!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error (e.g., email not found, invalid email format).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Could not send password reset link."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/password/reset": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Reset user password using a token",
+                "operationId": "2a3c466f078b2abe27a00f2d886a4132",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "description": "The password reset token received via email.",
+                                        "type": "string",
+                                        "example": "some_reset_token"
+                                    },
+                                    "email": {
+                                        "description": "The user's email address.",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "description": "The new password for the user.",
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 8,
+                                        "example": "new_secure_password"
+                                    },
+                                    "password_confirmation": {
+                                        "description": "Confirmation of the new password.",
+                                        "type": "string",
+                                        "format": "password",
+                                        "minLength": 8,
+                                        "example": "new_secure_password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "302": {
+                        "description": "Redirect to /home on successful password reset."
+                    },
+                    "422": {
+                        "description": "Validation error (e.g., invalid token, email not found, passwords don't match, or weak password).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationError"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error during password reset."
+                    }
+                }
+            }
+        },
+        "/email/verify/{id}/{hash}": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Verify user's email address",
+                "description": "Verifies the user's email address using the provided ID and hash from the verification link. This is typically a web route.",
+                "operationId": "2295166070a7e08a04399e54af513a63",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "The user's ID.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "description": "The verification hash.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect to /home on successful email verification."
+                    },
+                    "401": {
+                        "description": "Unauthorized - if the user is not authenticated.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationError"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden - if the link is invalid or expired (e.g., 'signed' middleware failure).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "This email verification link is invalid or has expired."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/email/resend": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Resend email verification link",
+                "description": "Sends a new email verification link to the authenticated user's email address.",
+                "operationId": "b91a622d7d4db17dd3d2cd9261101016",
+                "responses": {
+                    "200": {
+                        "description": "Verification email resent successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "A fresh verification link has been sent to your email address."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized - if the user is not authenticated.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthenticationError"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests - if the user tries to resend too frequently (throttled).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Too Many Attempts."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "TransactionReversalStatus": {
+                "type": "string",
+                "enum": [
+                    "PENDING",
+                    "COMPLETED",
+                    "FAILED",
+                    "REVERSED",
+                    "DENIED"
+                ],
+                "example": "PENDING"
+            },
+            "TransactionStatus": {
+                "type": "string",
+                "enum": [
+                    "PENDING",
+                    "COMPLETED",
+                    "FAILED",
+                    "REVERSED",
+                    "DENIED"
+                ],
+                "example": "PENDING"
+            },
+            "TransactionType": {
+                "type": "string",
+                "enum": [
+                    "TRANSFER",
+                    "DEPOSIT",
+                    "REVERSAL"
+                ],
+                "example": "TRANSFER"
+            },
+            "UserTypeEnum": {
+                "title": "UserTypeEnum",
+                "description": "Tipos de usuário permitidos no sistema",
+                "type": "string",
+                "enum": [
+                    "COMMON",
+                    "MERCHANT",
+                    "ADMIN"
+                ],
+                "example": "COMMON"
+            },
+            "MoneyDepositedEvent": {
+                "title": "MoneyDepositedEvent",
+                "description": "Evento disparado após um depósito de dinheiro bem-sucedido.",
+                "properties": {
+                    "transaction": {
+                        "$ref": "#/components/schemas/Transaction"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "amount": {
+                        "description": "O valor depositado.",
+                        "type": "number",
+                        "format": "float",
+                        "example": 100.5
+                    }
+                },
+                "type": "object"
+            },
+            "MoneyTransferredEvent": {
+                "title": "MoneyTransferredEvent",
+                "description": "Evento disparado após uma transferência de dinheiro bem-sucedida.",
+                "properties": {
+                    "transaction": {
+                        "$ref": "#/components/schemas/Transaction"
+                    },
+                    "payer": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "payee": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "amount": {
+                        "description": "O valor transferido.",
+                        "type": "number",
+                        "format": "float",
+                        "example": 50
+                    }
+                },
+                "type": "object"
+            },
+            "TransactionDeniedEvent": {
+                "title": "TransactionDeniedEvent",
+                "description": "Evento disparado quando uma transação é negada por regras de negócio ou validação.",
+                "properties": {
+                    "transaction": {
+                        "$ref": "#/components/schemas/Transaction"
+                    },
+                    "payer": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "payee": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "amount": {
+                        "description": "O valor que foi tentado transferir.",
+                        "type": "number",
+                        "format": "float",
+                        "example": 75
+                    },
+                    "reason": {
+                        "description": "O motivo da negação da transação.",
+                        "type": "string",
+                        "example": "Insufficient balance"
+                    }
+                },
+                "type": "object"
+            },
+            "TransactionReversedEvent": {
+                "title": "TransactionReversedEvent",
+                "description": "Evento disparado quando uma transação é revertida com sucesso.",
+                "properties": {
+                    "originalTransaction": {
+                        "$ref": "#/components/schemas/Transaction"
+                    },
+                    "reversalTransaction": {
+                        "$ref": "#/components/schemas/Transaction"
+                    },
+                    "transactionReversalRecord": {
+                        "$ref": "#/components/schemas/TransactionReversal"
+                    },
+                    "payer": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "O usuário pagador da transação original (pode ser null para depósitos)."
+                    },
+                    "payee": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "amount": {
+                        "description": "O valor que foi revertido.",
+                        "type": "number",
+                        "format": "float",
+                        "example": 50
+                    },
+                    "reason": {
+                        "description": "O motivo da reversão.",
+                        "type": "string",
+                        "example": "Duplicate transaction"
+                    }
+                },
+                "type": "object"
+            },
+            "UserGoogleLoginResponse": {
+                "title": "User Google Login Response",
+                "description": "User data returned after successful Google login.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "john.doe@example.com"
+                    },
+                    "document": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "balance": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0
+                    },
+                    "user_type": {
+                        "$ref": "#/components/schemas/UserTypeEnum"
+                    },
+                    "google_id": {
+                        "type": "string",
+                        "example": "102345678901234567890",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-27T10:00:00.000000Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2023-10-27T10:00:00.000000Z"
+                    },
+                    "email_verified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": null,
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "TooManyRequestsError": {
+                "title": "Too Many Requests Error",
+                "description": "Error response when the rate limit for an endpoint is exceeded.",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Too Many Attempts."
+                    },
+                    "exception": {
+                        "type": "string",
+                        "example": "Symfony\\Component\\HttpKernel\\Exception\\TooManyRequestsHttpException"
+                    }
+                },
+                "type": "object"
+            },
+            "LoginRequest": {
+                "title": "Login Request",
+                "description": "Data required for user login.",
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "description": "The user's email address.",
+                        "type": "string",
+                        "format": "email",
+                        "example": "user@example.com"
+                    },
+                    "password": {
+                        "description": "The user's password.",
+                        "type": "string",
+                        "format": "password",
+                        "example": "password123"
+                    }
+                },
+                "type": "object"
+            },
+            "RegisterRequest": {
+                "title": "Register Request",
+                "description": "Data required for user registration.",
+                "required": [
+                    "name",
+                    "email",
+                    "document",
+                    "password",
+                    "password_confirmation",
+                    "user_type"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "The user's full name.",
+                        "type": "string",
+                        "example": "João Silva"
+                    },
+                    "email": {
+                        "description": "The user's email address (must be unique).",
+                        "type": "string",
+                        "format": "email",
+                        "example": "joao.silva@example.com"
+                    },
+                    "document": {
+                        "description": "The user's CPF (for common users) or CNPJ (for shopkeepers), without formatting.",
+                        "type": "string",
+                        "example": "12345678900"
+                    },
+                    "password": {
+                        "description": "The user's password.",
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8,
+                        "example": "secure_password123"
+                    },
+                    "password_confirmation": {
+                        "description": "Confirmation of the user's password.",
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8,
+                        "example": "secure_password123"
+                    },
+                    "user_type": {
+                        "description": "The type of user being registered.",
+                        "type": "string",
+                        "enum": [
+                            "common",
+                            "shopkeeper"
+                        ],
+                        "example": "common"
+                    }
+                },
+                "type": "object"
+            },
+            "DepositRequest": {
+                "title": "Deposit Request",
+                "description": "Data required for a user to make a deposit.",
+                "required": [
+                    "amount"
+                ],
+                "properties": {
+                    "amount": {
+                        "description": "The amount to be deposited. Must be greater than zero.",
+                        "type": "number",
+                        "format": "float",
+                        "example": 100.5
+                    }
+                },
+                "type": "object"
+            },
+            "ReversalRequest": {
+                "title": "Reversal Request",
+                "description": "Data required to request a transaction reversal.",
+                "required": [
+                    "original_transaction_id",
+                    "reason"
+                ],
+                "properties": {
+                    "original_transaction_id": {
+                        "description": "The UUID of the original transaction to be reversed. This transaction must exist.",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    },
+                    "reason": {
+                        "description": "The reason for the reversal. Must be at least 10 characters long.",
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 10,
+                        "example": "Duplicate transaction due to system error."
+                    }
+                },
+                "type": "object"
+            },
+            "TransferRequest": {
+                "title": "Transfer Request",
+                "description": "Data required for a user to initiate a money transfer.",
+                "required": [
+                    "payee_id",
+                    "amount"
+                ],
+                "properties": {
+                    "payee_id": {
+                        "description": "The UUID of the user who will receive the transfer. Must be an existing user and cannot be the payer's own ID.",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "987e6543-d2c1-b0a9-8765-43210fedcba9"
+                    },
+                    "amount": {
+                        "description": "The amount to be transferred. Must be a positive number greater than zero.",
+                        "type": "number",
+                        "format": "float",
+                        "example": 250.75
+                    }
+                },
+                "type": "object"
+            },
+            "UserStoreRequest": {
+                "title": "User Store Request",
+                "description": "Data required to create a new user by an administrator.",
+                "required": [
+                    "name",
+                    "email",
+                    "document",
+                    "password",
+                    "password_confirmation",
+                    "user_type"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "The full name of the user.",
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Novo Admin"
+                    },
+                    "email": {
+                        "description": "The unique email address for the user.",
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 255,
+                        "example": "new.admin@example.com"
+                    },
+                    "document": {
+                        "description": "The unique document number (CPF or CNPJ) for the user. Only digits.",
+                        "type": "string",
+                        "maxLength": 14,
+                        "example": "12345678901234"
+                    },
+                    "password": {
+                        "description": "The user's password. Must be at least 8 characters and confirmed.",
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8,
+                        "example": "StrongP@ssw0rd"
+                    },
+                    "password_confirmation": {
+                        "description": "Confirmation of the user's password. Must match 'password'.",
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8,
+                        "example": "StrongP@ssw0rd"
+                    },
+                    "user_type": {
+                        "description": "The type of user being created.",
+                        "type": "string",
+                        "enum": [
+                            "common",
+                            "shopkeeper",
+                            "admin"
+                        ],
+                        "example": "admin"
+                    }
+                },
+                "type": "object"
+            },
+            "UserUpdateRequest": {
+                "title": "User Update Request",
+                "description": "Data required to update an existing user by an administrator.",
+                "required": [
+                    "name",
+                    "email",
+                    "document",
+                    "user_type"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "The updated full name of the user.",
+                        "type": "string",
+                        "maxLength": 255,
+                        "example": "Nome Atualizado"
+                    },
+                    "email": {
+                        "description": "The updated unique email address for the user.",
+                        "type": "string",
+                        "format": "email",
+                        "maxLength": 255,
+                        "example": "updated.email@example.com"
+                    },
+                    "document": {
+                        "description": "The updated unique document number (CPF or CNPJ) for the user. Only digits.",
+                        "type": "string",
+                        "maxLength": 14,
+                        "example": "12345678901235"
+                    },
+                    "password": {
+                        "description": "The new password for the user. Optional. Must be at least 8 characters and confirmed if provided.",
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8,
+                        "example": "NewStrongP@ssw0rd",
+                        "nullable": true
+                    },
+                    "password_confirmation": {
+                        "description": "Confirmation of the new password. Required if 'password' is provided and must match 'password'.",
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8,
+                        "example": "NewStrongP@ssw0rd",
+                        "nullable": true
+                    },
+                    "user_type": {
+                        "description": "The updated type of user.",
+                        "type": "string",
+                        "enum": [
+                            "common",
+                            "shopkeeper",
+                            "admin"
+                        ],
+                        "example": "common"
+                    }
+                },
+                "type": "object"
+            },
+            "Transaction": {
+                "title": "Transaction",
+                "description": "Represents a financial transaction within the system.",
+                "properties": {
+                    "id": {
+                        "description": "The unique identifier of the transaction.",
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true,
+                        "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    },
+                    "payer_id": {
+                        "description": "The ID of the user who initiated the transaction (payer). Null for deposits.",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "user-uuid-1",
+                        "nullable": true
+                    },
+                    "payee_id": {
+                        "description": "The ID of the user who received the transaction (payee).",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "user-uuid-2"
+                    },
+                    "amount": {
+                        "description": "The amount of money involved in the transaction.",
+                        "type": "number",
+                        "format": "float",
+                        "example": 150.75
+                    },
+                    "status": {
+                        "description": "The current status of the transaction.",
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "completed",
+                            "denied",
+                            "reversed"
+                        ],
+                        "example": "completed"
+                    },
+                    "type": {
+                        "description": "The type of the transaction.",
+                        "type": "string",
+                        "enum": [
+                            "transfer",
+                            "deposit",
+                            "reversal"
+                        ],
+                        "example": "transfer"
+                    },
+                    "reverted_from": {
+                        "description": "The ID of the original transaction that this transaction reversed (if type is reversal).",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "original-transaction-uuid",
+                        "nullable": true
+                    },
+                    "reason": {
+                        "description": "The reason for the transaction status (e.g., denial reason, reversal reason).",
+                        "type": "string",
+                        "example": "Insufficient funds",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the transaction was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "example": "2024-07-15T10:00:00.000000Z"
+                    },
+                    "updated_at": {
+                        "description": "Timestamp when the transaction was last updated.",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "example": "2024-07-15T10:05:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "TransactionReversal": {
+                "title": "Transaction Reversal",
+                "description": "Represents a record of a transaction reversal, linking the original transaction to the new reversal transaction.",
+                "properties": {
+                    "id": {
+                        "description": "The unique identifier of the transaction reversal record.",
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true,
+                        "example": "e1f2g3h4-i5j6-7890-1234-567890abcdef"
+                    },
+                    "original_transaction_id": {
+                        "description": "The ID of the original transaction that was requested to be reversed.",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "a1b2c3d4-e5f6-7890-1234-567890abcdef"
+                    },
+                    "reversal_transaction_id": {
+                        "description": "The ID of the new transaction of type 'reversal' generated in the system. Null if the reversal failed or is pending.",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "z9y8x7w6-v5u4-3210-9876-543210fedcba",
+                        "nullable": true
+                    },
+                    "reversed_by_user_id": {
+                        "description": "The ID of the user (e.g., administrator) who initiated or approved this reversal request.",
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "user-admin-uuid"
+                    },
+                    "reason": {
+                        "description": "The reason provided for the transaction reversal.",
+                        "type": "string",
+                        "example": "Customer requested cancellation within cooling-off period."
+                    },
+                    "status": {
+                        "description": "The current status of the reversal request process.",
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "completed",
+                            "failed",
+                            "rejected"
+                        ],
+                        "example": "completed"
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the reversal record was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "example": "2024-07-15T15:30:00.000000Z"
+                    },
+                    "updated_at": {
+                        "description": "Timestamp when the reversal record was last updated.",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "example": "2024-07-15T15:35:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "title": "User",
+                "description": "Represents a user in the system, either a common user, a shopkeeper, or an administrator.",
+                "properties": {
+                    "id": {
+                        "description": "The unique identifier of the user.",
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true,
+                        "example": "b1c2d3e4-f5a6-7890-1234-567890abcdef"
+                    },
+                    "name": {
+                        "description": "The full name of the user.",
+                        "type": "string",
+                        "example": "Maria Santos"
+                    },
+                    "email": {
+                        "description": "The unique email address of the user.",
+                        "type": "string",
+                        "format": "email",
+                        "uniqueItems": true,
+                        "example": "maria.santos@example.com"
+                    },
+                    "document": {
+                        "description": "The unique CPF (for common users) or CNPJ (for shopkeepers), containing only digits.",
+                        "type": "string",
+                        "uniqueItems": true,
+                        "example": "12345678900"
+                    },
+                    "balance": {
+                        "description": "The current monetary balance of the user, with 2 decimal places.",
+                        "type": "number",
+                        "format": "float",
+                        "example": 1250.75
+                    },
+                    "user_type": {
+                        "description": "The type of user.",
+                        "type": "string",
+                        "enum": [
+                            "common",
+                            "shopkeeper",
+                            "admin"
+                        ],
+                        "example": "common"
+                    },
+                    "google_id": {
+                        "description": "The Google ID if the user registered via Google OAuth.",
+                        "type": "string",
+                        "example": "108347892347923487",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "Timestamp when the user account was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "example": "2024-07-15T10:00:00.000000Z"
+                    },
+                    "updated_at": {
+                        "description": "Timestamp when the user account was last updated.",
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "example": "2024-07-15T10:05:00.000000Z"
+                    }
+                },
+                "type": "object"
+            },
+            "AuthenticationError": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Falha na autenticação."
+                    },
+                    "error": {
+                        "type": "string",
+                        "example": "Credenciais inválidas."
+                    }
+                },
+                "type": "object"
+            },
+            "TransactionResponse": {
+                "description": "Schema representing a transaction, including details about sender and recipient.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "d3f4e5c6-7890-1234-5678-abcdefabcdef"
+                    },
+                    "payer_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "a1b2c3d4-5678-90ef-1234-567890abcdef"
+                    },
+                    "payee_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "b2c3d4e5-6789-01ab-2345-678901abcdef"
+                    },
+                    "amount": {
+                        "type": "string",
+                        "format": "decimal",
+                        "example": "150.00"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "TRANSFER"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "REVERSED"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-06-01T10:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-06-02T15:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "UnauthorizedReversalError": {
+                "description": "Returned when a user attempts to reverse a transaction they are not authorized to reverse.",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Você não tem permissão para reverter esta transação."
+                    },
+                    "error": {
+                        "type": "string",
+                        "example": "Reversão não autorizada."
+                    }
+                },
+                "type": "object"
+            },
+            "UserResponse": {
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "example": "a1b2c3d4-5678-90ef-1234-567890abcdef"
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "João da Silva"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "joao@example.com"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-01-01T12:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-01-02T12:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "ValidationError": {
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Erro de validação."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "API Endpoints para autenticação de usuários"
+        },
+        {
+            "name": "Transactions",
+            "description": "API Endpoints for managing financial transactions"
+        },
+        {
+            "name": "Users",
+            "description": "API Endpoints for managing users"
+        }
+    ]
+}

@@ -5,7 +5,29 @@ namespace App\Http\Requests\Auth;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Services\Auth\RegisterValidationServiceInterface; // Importar a interface do serviço de validação
 use Illuminate\Validation\ValidationException; // Importar para capturar exceções de validação
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: "RegisterRequest",
+    title: "Register Request",
+    description: "Data required for user registration.",
+    required: ["name", "email", "document", "password", "password_confirmation", "user_type"],
+    properties: [
+        new OA\Property(property: "name", type: "string", example: "João Silva", description: "The user's full name."),
+        new OA\Property(property: "email", type: "string", format: "email", example: "joao.silva@example.com", description: "The user's email address (must be unique)."),
+        new OA\Property(property: "document", type: "string", example: "12345678900", description: "The user's CPF (for common users) or CNPJ (for shopkeepers), without formatting."),
+        new OA\Property(property: "password", type: "string", format: "password", minLength: 8, example: "secure_password123", description: "The user's password."),
+        new OA\Property(property: "password_confirmation", type: "string", format: "password", minLength: 8, example: "secure_password123", description: "Confirmation of the user's password."),
+        new OA\Property(
+            property: "user_type",
+            type: "string",
+            enum: ["common", "shopkeeper"], // Assuming UserTypeEnum maps to these strings
+            example: "common",
+            description: "The type of user being registered."
+        ),
+    ],
+    type: "object"
+)]
 class RegisterRequest extends FormRequest
 {
     /**
@@ -23,8 +45,19 @@ class RegisterRequest extends FormRequest
      */
     public function __construct(RegisterValidationServiceInterface $registerValidationService)
     {
-        parent::__construct(); // Chama o construtor da classe pai
+        // Certifique-se de que o FormRequest seja instanciado com o container
+        // para que a injeção de dependência funcione.
+        // Em um ambiente Laravel normal, isso é tratado automaticamente quando o FormRequest é resolvido.
+        // Se você estiver testando ou instanciando manualmente, pode precisar passar o container.
         $this->registerValidationService = $registerValidationService;
+        // Chamar o construtor pai é importante para a inicialização do FormRequest.
+        // No entanto, injetar no __construct de um FormRequest pode ser complicado
+        // porque o FormRequest é resolvido pelo container *antes* do seu controller.
+        // A maneira mais comum de usar serviços em FormRequests para lógica pós-validação é
+        // através do método `withValidator` ou injetando-o no controller e chamando-o de lá,
+        // ou fazendo um `app()->make()` dentro do `rules()` ou `after()`.
+        // Para a documentação OpenAPI, isso não impacta, mas é uma nota de implementação.
+        parent::__construct();
     }
 
     /**
@@ -51,12 +84,12 @@ class RegisterRequest extends FormRequest
         // Se você quiser que o Laravel trate a exceção de validação,
         // pode deixar algumas regras aqui. Para simplificar e delegar tudo ao serviço:
         return [
-            'name' => ['required'], // Regra mínima para passar para o serviço
-            'email' => ['required'],
-            'document' => ['required'],
-            'password' => ['required'],
-            'password_confirmation' => ['required', 'same:password'], // Regra 'same' para a confirmação
-            'user_type' => ['required'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255'], // unique será validado no serviço
+            'document' => ['required', 'string'], // Validação de CPF/CNPJ e unique no serviço
+            'password' => ['required', 'string', 'min:8'],
+            'password_confirmation' => ['required', 'string', 'same:password'], // Regra 'same' para a confirmação
+            'user_type' => ['required', 'string', 'in:common,shopkeeper'], // Supondo que seu enum mapeie para essas strings
         ];
     }
 

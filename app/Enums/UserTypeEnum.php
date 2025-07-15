@@ -2,14 +2,16 @@
 
 namespace App\Enums;
 
-use App\Traits\EnumToArray; // Opcional: Adicionar um trait para converter Enum para array/lista
+use OpenApi\Attributes as OA;
 
 /**
  * @OA\Schema(
+ * schema="UserTypeEnum",
  * title="UserTypeEnum",
  * description="Tipos de usuário permitidos no sistema",
  * type="string",
- * enum={"COMMON", "MERCHANT"}
+ * enum={"COMMON", "MERCHANT", "ADMIN"},
+ * example="COMMON"
  * )
  */
 enum UserTypeEnum: string
@@ -29,6 +31,7 @@ enum UserTypeEnum: string
         return match ($this) {
             self::COMMON => 'Usuário comum',
             self::MERCHANT => 'Lojista ou Comerciante',
+            self::ADMIN => 'Administrador do sistema', // Adicionado ADMIN
         };
     }
 

@@ -4,7 +4,18 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ConfirmsPasswords;
+use OpenApi\Attributes as OA;
 
+#[OA\Server(
+    url: "http://localhost",
+    description: "API Server"
+)]
+#[OA\SecurityScheme(
+    securityScheme: "bearerAuth",
+    type: "http",
+    scheme: "bearer",
+    bearerFormat: "JWT"
+)]
 class ConfirmPasswordController extends Controller
 {
     /*

@@ -3,7 +3,9 @@
 namespace App\Exceptions;
 
 use Exception;
-use Illuminate\Http\Response; // Opcional, para indicar um código HTTP padrão
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use OpenApi\Attributes as OA;
 
 class UnauthorizedReversalException extends Exception
 {
@@ -22,7 +24,19 @@ class UnauthorizedReversalException extends Exception
      * Render the exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response|JsonResponse
      */
-    public function render($request) {}
+    public function render($request): JsonResponse|Response
+    {
+        // Se a requisição espera JSON (API), retorna JSON
+        if ($request->wantsJson()) {
+            return response()->json([
+                'message' => 'Unauthorized to reverse this transaction.',
+                'error' => $this->getMessage(),
+            ], Response::HTTP_FORBIDDEN); // 403 Forbidden
+        }
+
+        // Caso contrário, redireciona ou retorna uma view de erro
+        return response()->view('errors.403', [], Response::HTTP_FORBIDDEN);
+    }
 }

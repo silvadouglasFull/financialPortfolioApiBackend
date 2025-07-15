@@ -3,12 +3,36 @@
 namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use OpenApi\Attributes as OA;
 
 /**
  * Class LoginRequest
  *
  * Manipula as regras de validação para a requisição de login.
  */
+#[OA\Schema(
+    schema: "LoginRequest",
+    title: "Login Request",
+    description: "Data required for user login.",
+    required: ["email", "password"],
+    properties: [
+        new OA\Property(
+            property: "email",
+            type: "string",
+            format: "email",
+            example: "user@example.com",
+            description: "The user's email address."
+        ),
+        new OA\Property(
+            property: "password",
+            type: "string",
+            format: "password",
+            example: "password123",
+            description: "The user's password."
+        )
+    ],
+    type: "object"
+)]
 class LoginRequest extends FormRequest
 {
     /**

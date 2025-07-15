@@ -2,12 +2,26 @@
 
 namespace App\Events;
 
-use App\Models\Transaction; // Importar a Model Transaction
-use App\Models\User;        // Importar a Model User
+use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: "TransactionDeniedEvent",
+    title: "TransactionDeniedEvent",
+    description: "Evento disparado quando uma transação é negada por regras de negócio ou validação.",
+    properties: [
+        new OA\Property(property: "transaction", ref: "#/components/schemas/Transaction", description: "A instância da transação que foi negada (já registrada como DENIED)."),
+        new OA\Property(property: "payer", ref: "#/components/schemas/User", description: "O usuário que tentou realizar o pagamento (pagador)."),
+        new OA\Property(property: "payee", ref: "#/components/schemas/User", description: "O usuário que seria o recebedor."),
+        new OA\Property(property: "amount", type: "number", format: "float", example: 75.00, description: "O valor que foi tentado transferir."),
+        new OA\Property(property: "reason", type: "string", example: "Insufficient balance", description: "O motivo da negação da transação.")
+    ],
+    type: "object"
+)]
 class TransactionDenied
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;

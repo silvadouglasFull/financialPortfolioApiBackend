@@ -3,7 +3,24 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: "DepositRequest",
+    title: "Deposit Request",
+    description: "Data required for a user to make a deposit.",
+    required: ["amount"],
+    properties: [
+        new OA\Property(
+            property: "amount",
+            type: "number",
+            format: "float",
+            example: 100.50,
+            description: "The amount to be deposited. Must be greater than zero."
+        )
+    ],
+    type: "object"
+)]
 class DepositRequest extends FormRequest
 {
     /**

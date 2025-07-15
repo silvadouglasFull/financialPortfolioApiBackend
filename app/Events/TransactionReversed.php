@@ -2,13 +2,29 @@
 
 namespace App\Events;
 
-use App\Models\Transaction; // Importar a Model Transaction
-use App\Models\TransactionReversal; // Importar a Model TransactionReversal
-use App\Models\User; // Importar a Model User (para os usuários envolvidos na transação original)
+use App\Models\Transaction;
+use App\Models\TransactionReversal;
+use App\Models\User;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: "TransactionReversedEvent",
+    title: "TransactionReversedEvent",
+    description: "Evento disparado quando uma transação é revertida com sucesso.",
+    properties: [
+        new OA\Property(property: "originalTransaction", ref: "#/components/schemas/Transaction", description: "A instância da transação original que foi revertida."),
+        new OA\Property(property: "reversalTransaction", ref: "#/components/schemas/Transaction", description: "A instância da nova transação do tipo REVERSAL que efetivou a reversão."),
+        new OA\Property(property: "transactionReversalRecord", ref: "#/components/schemas/TransactionReversal", description: "O registro da reversão na tabela transaction_reversals."),
+        new OA\Property(property: "payer", ref: "#/components/schemas/User", nullable: true, description: "O usuário pagador da transação original (pode ser null para depósitos)."),
+        new OA\Property(property: "payee", ref: "#/components/schemas/User", description: "O usuário recebedor da transação original."),
+        new OA\Property(property: "amount", type: "number", format: "float", example: 50.00, description: "O valor que foi revertido."),
+        new OA\Property(property: "reason", type: "string", example: "Duplicate transaction", description: "O motivo da reversão.")
+    ],
+    type: "object"
+)]
 class TransactionReversed
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
