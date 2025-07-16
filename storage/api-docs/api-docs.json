@@ -2237,6 +2237,12 @@
             }
         },
         "securitySchemes": {
+            "apiToken": {
+                "type": "apiKey",
+                "description": "API Token de acesso global para serviços internos ou parceiros.",
+                "name": "Api-Token",
+                "in": "header"
+            },
             "bearerAuth": {
                 "type": "http",
                 "bearerFormat": "JWT",
