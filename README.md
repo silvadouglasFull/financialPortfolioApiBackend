@@ -58,6 +58,7 @@ Before you start, ensure your system meets the following requirements:
     ```bash
     docker exec -it <php-fpm-container-name-or-id> bash
     # Inside the container shell:
+    composer install
     composer db:migrate
     composer db:seeder
     ```
