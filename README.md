@@ -52,6 +52,9 @@ Before you start, ensure your system meets the following requirements:
     docker compose up -d --build
     ```
 
+    4.1 **Config env file**.
+    To use Api set API_GLOBAL_TOKEN variable env.
+
 5.  **Run Database Migrations and Seeders**
     Access the shell of the `php:8.4-fpm` container (you might need to find its exact name using `docker ps`). Once inside the container's shell, run the database migrations and then the seeders **in this exact order**:
 
