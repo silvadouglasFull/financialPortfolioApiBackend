@@ -137,6 +137,7 @@ API Documentation for your application.
 | UnauthorizedReversalError | [#/components/schemas/UnauthorizedReversalError](#componentsschemasunauthorizedreversalerror) | Returned when a user attempts to reverse a transaction they are not authorized to reverse.                       |
 | UserResponse              | [#/components/schemas/UserResponse](#componentsschemasuserresponse)                           |                                                                                                                  |
 | ValidationError           | [#/components/schemas/ValidationError](#componentsschemasvalidationerror)                     |                                                                                                                  |
+| apiToken                  | [#/components/securitySchemes/apiToken](#componentssecurityschemesapitoken)                   | API Token de acesso global para serviços internos ou parceiros.                                                  |
 | bearerAuth                | [#/components/securitySchemes/bearerAuth](#componentssecurityschemesbearerauth)               |                                                                                                                  |
 
 ## Path Details
@@ -1846,6 +1847,17 @@ per_page?: integer //default: 10
 }
 ```
 
+### #/components/securitySchemes/apiToken
+
+```ts
+{
+  "type": "apiKey",
+  "description": "API Token de acesso global para serviços internos ou parceiros.",
+  "name": "Api-Token",
+  "in": "header"
+}
+```
+
 ### #/components/securitySchemes/bearerAuth
 
 ```ts
@@ -1855,5 +1867,3 @@ per_page?: integer //default: 10
   "scheme": "bearer"
 }
 ```
-
-To more info consult: https://drive.google.com/drive/folders/1Wjk2d_-I93SppZlYn_ARP0TF-9sBAB7w
