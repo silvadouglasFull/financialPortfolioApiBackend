@@ -1852,3 +1852,5 @@ per_page?: integer //default: 10
   "scheme": "bearer"
 }
 ```
+
+To more info consult: https://drive.google.com/drive/folders/1Wjk2d_-I93SppZlYn_ARP0TF-9sBAB7w
