@@ -24,6 +24,7 @@ class TransferService implements TransferServiceInterface
 {
     protected UserRepositoryInterface $userRepository;
     protected TransactionRepositoryInterface $transactionRepository;
+    protected $ENABLE_TRANSFER_WITHOUT_SUFFICIENT_BALANCE = true;
 
     /**
      * Construtor do TransferService.
@@ -37,6 +38,7 @@ class TransferService implements TransferServiceInterface
     ) {
         $this->userRepository = $userRepository;
         $this->transactionRepository = $transactionRepository;
+        $this->ENABLE_TRANSFER_WITHOUT_SUFFICIENT_BALANCE = (bool) env("ENABLE_TRANSFER_WITHOUT_SUFFICIENT_BALANCE");
     }
 
     /**
@@ -77,7 +79,7 @@ class TransferService implements TransferServiceInterface
         }
 
         // 2. Validar saldo do pagador
-        if ($payer->balance < $amount) {
+        if (($payer->balance < $amount) && !$this->ENABLE_TRANSFER_WITHOUT_SUFFICIENT_BALANCE) {
             $reason = "Saldo insuficiente para realizar a transferência.";
             Log::warning('Tentativa de transferência com saldo insuficiente.', [
                 'payer_id' => $payer->id,

@@ -35,6 +35,7 @@ class RegisterController extends Controller
     {
         try {
             $validatedData = $request->validated();
+            dd($validatedData);
             $user = $this->userService->createUser($validatedData);
 
             Auth::login($user); // Loga o usuário após o registro

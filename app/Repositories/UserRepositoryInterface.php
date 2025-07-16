@@ -65,10 +65,10 @@ interface UserRepositoryInterface
     /**
      * Obtém todos os usuários, exceto um ID específico.
      *
-     * @param int|null $excludedId O ID do usuário a ser excluído da lista.
+     * @param string|null $excludedId O ID do usuário a ser excluído da lista.
      * @return Collection<User>
      */
-    public function getAllExcept(?int $excludedId = null): Collection;
+    public function getAllExcept(?string $excludedId = null): Collection;
 
     /**
      * Obtém uma coleção paginada de todos os usuários.

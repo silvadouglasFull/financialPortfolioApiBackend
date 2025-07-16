@@ -97,15 +97,19 @@ class EloquentUserRepository implements UserRepositoryInterface
     /**
      * Obtém todos os usuários, exceto um ID específico.
      *
-     * @param int|null $excludedId O ID do usuário a ser excluído da lista.
+     * @param string|null $excludedId O ID do usuário a ser excluído da lista.
      * @return Collection<User>
      */
-    public function getAllExcept(?int $excludedId = null): Collection
+    public function getAllExcept(?string $excludedId = null): Collection
     {
-        return User::where([
-            ["id", "!=", $excludedId],
-            ["user_type", "!=", UserTypeEnum::ADMIN]
-        ])->get();
+        $query = User::query();
+
+        if ($excludedId !== null) {
+            $query->where('id', '!=', $excludedId);
+        }
+
+        return $query->where('user_type', '<>', UserTypeEnum::ADMIN->value)
+            ->get();
     }
     /**
      * Deleta um usuário.

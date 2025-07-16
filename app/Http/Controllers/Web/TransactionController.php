@@ -58,7 +58,7 @@ class TransactionController extends Controller
     public function showTransferForm(): View
     {
         $user = Auth::user();
-        $users = $this->userRepository->getAllExcept((int)$user->id);
+        $users = $this->userRepository->getAllExcept($user->id);
         return view('transactions.transfer-form', compact('users'));
     }
 

@@ -8,7 +8,7 @@ use App\Enums\UserTypeEnum;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Collection;
+use App\Enums\TransactionType;
 
 class RetrieveTransactions implements RetrieveTransactionsInterface
 {
@@ -22,7 +22,8 @@ class RetrieveTransactions implements RetrieveTransactionsInterface
     {
         $user = Auth::user();
         $transactions = $user->user_type !== UserTypeEnum::ADMIN ? Transaction::where('payer_id', $user->id)
-            ->latest() : Transaction::latest();
+            ->orWhere("payee_id", $user->id)
+            ->latest() : Transaction::where("type", "!=", TransactionType::DEPOSIT)->latest();
 
         if ($take !== 0) {
             return $transactions->take($take)->paginate(10);
