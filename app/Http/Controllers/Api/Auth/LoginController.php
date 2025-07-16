@@ -20,6 +20,13 @@ use OpenApi\Attributes as OA; // Adicione esta linha para importar as anotaçõe
     name: "Authentication",
     description: "API Endpoints para autenticação de usuários"
 )]
+#[OA\SecurityScheme(
+    securityScheme: "apiToken",
+    type: "apiKey",
+    in: "header",
+    name: "Api-Token",
+    description: "API Token de acesso global para serviços internos ou parceiros."
+)]
 class LoginController extends Controller
 {
     protected AuthServiceInterface $authService;
