@@ -15,8 +15,8 @@ return [
     |
     */
 
-    'title' => 'Financial Portfolio',
-    'title_prefix' => '',
+    'title' => "Financial Portfolio",
+    'title_prefix' => 'Financial Portfolio | ',
     'title_postfix' => '',
 
     /*
@@ -301,6 +301,13 @@ return [
 
     'menu' => [
 
+        // Sidebar items:
+        [
+            'type' => 'sidebar-menu-item',
+            'text' => 'Home',
+            'url'  => 'home', // <-- Esta é a URL padrão da Home
+            'icon' => 'fas fa-fw fa-home',
+        ],
         // --- Adição para o CRUD de Usuários ---
         ['header' => 'User Management'],
         [
