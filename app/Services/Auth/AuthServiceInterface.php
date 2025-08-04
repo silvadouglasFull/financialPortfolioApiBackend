@@ -2,7 +2,6 @@
 
 namespace App\Services\Auth;
 
-use App\Models\User; // Usar o Model User para tipo de retorno
 
 /**
  * Interface AuthServiceInterface

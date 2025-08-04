@@ -438,7 +438,7 @@ class UserController extends Controller
      * @return JsonResponse
      */
     #[OA\Get(
-        path: "/api/profile",
+        path: "/api/users/profile",
         summary: "Get the authenticated user's profile",
         tags: ["Users"],
         security: [["bearerAuth" => []]],

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest; // Importar o LoginRequest
 use App\Services\Auth\AuthServiceInterface; // Importar a interface do serviço de autenticação
 use App\Exceptions\AuthenticationException; // Importar a exceção de autenticação
+use App\Services\Auth\SetJWTCookie;
 use Illuminate\Http\JsonResponse; // Para tipagem do retorno
 use Illuminate\Http\Response; // Para constantes de status HTTP
 use Illuminate\Support\Facades\Log;
@@ -93,11 +94,11 @@ class LoginController extends Controller
     {
         try {
             $result = $this->authService->attemptLogin($request->only('email', 'password'));
+            $cookie = new SetJWTCookie()->setCookie($result);
             return response()->json([
                 'message' => 'Login realizado com sucesso!',
-                'token' => $result['token'],
                 'user' => $result['user'],
-            ], Response::HTTP_OK);
+            ], Response::HTTP_OK)->cookie($cookie);
         } catch (AuthenticationException $e) {
             return response()->json([
                 'message' => 'Falha na autenticação.',
