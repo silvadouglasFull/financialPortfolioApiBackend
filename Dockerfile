@@ -33,4 +33,8 @@ RUN useradd -G www-data,root -u $uid -d /home/$user $user && \
     mkdir -p /home/$user/.composer && \
     chown -R $user:$user /home/$user
 WORKDIR /var/www
+RUN mkdir -p storage bootstrap/cache \
+    && chown -R $user:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+
 USER $user
