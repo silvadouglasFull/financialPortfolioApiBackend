@@ -27,10 +27,10 @@ interface UserServiceInterface
     /**
      * Busca um usuário pelo ID.
      *
-     * @param int $userId
+     * @param string $userId
      * @return User|null
      */
-    public function findUserById(int $userId): ?User;
+    public function findUserById(string $userId): ?User;
 
     /**
      * Atualiza um usuário existente no sistema.

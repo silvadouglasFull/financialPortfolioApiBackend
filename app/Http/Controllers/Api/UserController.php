@@ -247,7 +247,7 @@ class UserController extends Controller
             )
         ]
     )]
-    public function show(int $id): JsonResponse
+    public function show(string $id): JsonResponse
     {
         try {
             $user = $this->userService->findUserById($id);

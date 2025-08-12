@@ -84,11 +84,11 @@ class UserService implements UserServiceInterface
     /**
      * Busca um usuário pelo ID.
      *
-     * @param int $userId
+     * @param string $userId
      * @return User|null
      * @throws \Exception Se ocorrer um erro inesperado.
      */
-    public function findUserById(int $userId): ?User
+    public function findUserById(string $userId): ?User
     {
         try {
             return $this->userRepository->findById((string)$userId); // Assegura que o ID é string se findById esperar string
