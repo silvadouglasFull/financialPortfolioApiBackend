@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\EnsureApiTokenIsValid;
 use App\Http\Middleware\JwtFromCookieMiddleware;
 use Illuminate\Foundation\Application;
@@ -24,10 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'admin' => AdminMiddleware::class,
-        ]);
-        $middleware->alias(([
+            'checkRole' => CheckRole::class,
             'throttle' => TransactionThrottle::class
-        ]));
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

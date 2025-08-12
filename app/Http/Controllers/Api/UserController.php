@@ -472,7 +472,6 @@ class UserController extends Controller
             if (!$user) {
                 return response()->json(['message' => 'Unauthorized or user not found.'], 401);
             }
-
             return response()->json($user->only([
                 'id',
                 'name',

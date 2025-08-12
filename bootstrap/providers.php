@@ -6,4 +6,5 @@ return [
     App\Providers\AuthServiceProvider::class,
     App\Providers\TransactionsServiceProvider::class,
     App\Providers\DepositServiceProvider::class,
+    App\Providers\RoleUserServiceProvider::class
 ];

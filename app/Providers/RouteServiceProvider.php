@@ -51,7 +51,7 @@ class RouteServiceProvider extends ServiceProvider
                 ->prefix('api')
                 ->group(base_path('routes/api/transactions.php'));
 
-            Route::middleware('api')
+            Route::middleware(['api', 'checkRole'])
                 ->prefix('api')
                 ->group(base_path('routes/api/transactions.reverse.php'));
 

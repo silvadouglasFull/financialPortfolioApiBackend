@@ -94,7 +94,7 @@ class LoginController extends Controller
     {
         try {
             $result = $this->authService->attemptLogin($request->only('email', 'password'));
-            $cookie = new SetJWTCookie()->setCookie($result);
+            $cookie = SetJWTCookie::setCookie($result);
             return response()->json([
                 'message' => 'Login realizado com sucesso!',
                 'user' => $result['user'],

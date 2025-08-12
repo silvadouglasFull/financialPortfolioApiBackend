@@ -126,8 +126,6 @@ class ReversalController extends Controller
                 $statusCode = Response::HTTP_FORBIDDEN;
                 $message = $e->getMessage();
             }
-
-
             return response()->json([
                 'message' => $message,
                 'error' => $e->getMessage(),

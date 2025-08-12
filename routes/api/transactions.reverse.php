@@ -14,6 +14,6 @@ use App\Http\Controllers\Api\ReversalController;
 |
 */
 // Rotas protegidas por autenticação Sanctum
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/transactions/reverse', [ReversalController::class, 'reverse']);
 });
